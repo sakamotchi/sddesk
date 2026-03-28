@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import * as Tabs from '@radix-ui/react-tabs'
-import { FileText, Terminal } from 'lucide-react'
+import { FileText, Terminal, Columns2 } from 'lucide-react'
 import { useAppStore } from '../../stores/appStore'
 
 interface MainTabsProps {
@@ -13,17 +13,23 @@ interface MainTabsProps {
 export function MainTabs({ children }: MainTabsProps) {
   const activeMainTab = useAppStore((s) => s.activeMainTab)
   const setActiveMainTab = useAppStore((s) => s.setActiveMainTab)
+  const mainLayout = useAppStore((s) => s.mainLayout)
+  const toggleMainLayout = useAppStore((s) => s.toggleMainLayout)
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'Tab') {
+      if (e.ctrlKey && e.key === 'Tab' && mainLayout === 'tab') {
         e.preventDefault()
         setActiveMainTab(activeMainTab === 'content' ? 'terminal' : 'content')
+      }
+      if (e.ctrlKey && e.key === '\\') {
+        e.preventDefault()
+        toggleMainLayout()
       }
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [activeMainTab, setActiveMainTab])
+  }, [activeMainTab, mainLayout, setActiveMainTab, toggleMainLayout])
 
   return (
     <Tabs.Root
@@ -59,6 +65,20 @@ export function MainTabs({ children }: MainTabsProps) {
           <Terminal size={14} />
           ターミナル
         </Tabs.Trigger>
+
+        {/* Split ボタン */}
+        <div className="ml-auto flex items-center pr-2">
+          <button
+            onClick={toggleMainLayout}
+            title="Split View (Ctrl+\)"
+            className="flex items-center justify-center w-7 h-7 rounded transition-colors outline-none hover:bg-white/10"
+            style={{
+              color: mainLayout === 'split' ? 'var(--color-accent)' : 'var(--color-text-muted)',
+            }}
+          >
+            <Columns2 size={14} />
+          </button>
+        </div>
       </Tabs.List>
 
       {/* コンテンツエリア */}
