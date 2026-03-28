@@ -78,11 +78,12 @@ export function TerminalPanel({ cwd = "/", isActive = true }: TerminalPanelProps
     };
   }, [cwd]);
 
-  // タブが表示状態に切り替わった時にターミナルサイズを再計算する
+  // タブが表示状態に切り替わった時にサイズ再計算とフォーカスを行う
   useLayoutEffect(() => {
-    if (isActive && fitAddonRef.current) {
+    if (isActive) {
       requestAnimationFrame(() => {
         fitAddonRef.current?.fit();
+        termRef.current?.focus();
       });
     }
   }, [isActive]);
