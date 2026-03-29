@@ -94,103 +94,50 @@ toggleMainLayout: () => void
 
 ### コンポーネント構成
 
-**MainArea.tsx の分岐ロジック:**
+**MainArea.tsx の実装方針（display:none による常時マウント）:**
+
+> **重要な設計変更**: 当初設計では `mainLayout === 'split'` の分岐で `SplitPane` コンポーネントを使い、タブモード時は `MainTabs` を使う予定だったが、`TerminalTabs` が異なるツリー位置に配置されると React がアンマウント→リマウントし PTY セッションが破棄される問題が判明。
+>
+> **採用した解決策**: `TerminalTabs` を常に同じツリー位置（コンテンツペインの兄弟）に固定し、`display: none` で表示/非表示を制御する。`SplitPane` コンポーネントと `MainTabs.tsx` (Radix Tabs) は使用しない。
 
 ```tsx
 export function MainArea() {
-  const mainLayout = useAppStore((s) => s.mainLayout)
-  const toggleMainLayout = useAppStore((s) => s.toggleMainLayout)
-
-  const contentNode = (
-    <div className="flex items-center justify-center h-full ...">
-      コンテンツビューア（Phase 2-A で実装）
-    </div>
-  )
-  const terminalNode = <TerminalTabs />
-
-  if (mainLayout === 'split') {
-    return (
-      <div className="flex flex-col h-full">
-        <SplitPane direction="horizontal" defaultSize={500} minSize={200} maxSize={...}>
-          {/* 左ペイン: コンテンツ */}
-          <div className="flex flex-col h-full">
-            <SplitPaneHeader label="コンテンツ" icon={<FileText />} onClose={toggleMainLayout} />
-            <div className="flex-1 min-h-0">{contentNode}</div>
-          </div>
-          {/* 右ペイン: ターミナル */}
-          <div className="flex flex-col h-full">
-            <SplitPaneHeader label="ターミナル" icon={<Terminal />} onClose={toggleMainLayout} />
-            <div className="flex-1 min-h-0">{terminalNode}</div>
-          </div>
-        </SplitPane>
-      </div>
-    )
-  }
-
+  // タブバー・Split ボタン・Ctrl+Tab/Ctrl+\ をすべてここで管理
   return (
     <div className="flex flex-col h-full bg-[var(--color-bg-base)]">
-      <MainTabs children={{ content: contentNode, terminal: terminalNode }} />
+      {/* カスタムタブバー（タブモード時のみタブを表示、常に Split ボタン表示） */}
+      <div className="flex items-center h-9 flex-shrink-0" style={{...}}>
+        {!isSplit && (['content', 'terminal'] as const).map((tab) => (
+          <button key={tab} onClick={() => setActiveMainTab(tab)} ...>...</button>
+        ))}
+        <div className="ml-auto flex items-center pr-2">
+          <button onClick={toggleMainLayout}><Columns2 size={14} /></button>
+        </div>
+      </div>
+
+      {/* コンテンツエリア: コンテンツペイン + セパレーター + ターミナルペイン を常時レンダリング */}
+      <div ref={containerRef} className="flex flex-1 min-h-0">
+        {/* コンテンツペイン: display:none で表示/非表示 */}
+        <div style={{ display: isSplit || activeMainTab === 'content' ? 'flex' : 'none', ... }}>
+          {isSplit && <SplitPaneHeader label="コンテンツ" ... />}
+          {contentNode}
+        </div>
+
+        {/* セパレーター: Split 時のみ表示、ドラッグでリサイズ */}
+        {isSplit && <div className="w-1 cursor-col-resize" onMouseDown={onSeparatorMouseDown} />}
+
+        {/* ターミナルペイン: 常に同じツリー位置、display:none で表示/非表示 */}
+        <div style={{ display: isSplit || activeMainTab === 'terminal' ? 'flex' : 'none', ... }}>
+          {isSplit && <SplitPaneHeader label="ターミナル" ... />}
+          <TerminalTabs />  {/* ← 常にここ。アンマウントされない */}
+        </div>
+      </div>
     </div>
   )
 }
 ```
 
-**`SplitPaneHeader`（インライン実装・独立コンポーネント不要）:**
-
-```tsx
-// MainArea.tsx 内にローカルコンポーネントとして定義
-function SplitPaneHeader({
-  label,
-  icon,
-  onClose,
-}: {
-  label: string
-  icon: React.ReactNode
-  onClose: () => void
-}) {
-  return (
-    <div className="flex items-center justify-between h-9 px-3 flex-shrink-0 ..."
-      style={{ background: 'var(--color-bg-elevated)', borderBottom: '1px solid var(--color-border)' }}
-    >
-      <span className="flex items-center gap-1.5 text-sm" style={{ color: 'var(--color-text-muted)' }}>
-        {icon}
-        {label}
-      </span>
-      <button onClick={onClose} ...><X size={14} /></button>
-    </div>
-  )
-}
-```
-
-**MainTabs.tsx の変更点:**
-
-```tsx
-// Split ボタン追加（タブバー右端）
-const mainLayout = useAppStore((s) => s.mainLayout)
-const toggleMainLayout = useAppStore((s) => s.toggleMainLayout)
-
-// Ctrl+\ ショートカット追加 + Ctrl+Tab に mainLayout ガード追加
-useEffect(() => {
-  const onKeyDown = (e: KeyboardEvent) => {
-    if (e.ctrlKey && e.key === 'Tab' && mainLayout === 'tab') {
-      e.preventDefault()
-      setActiveMainTab(activeMainTab === 'content' ? 'terminal' : 'content')
-    }
-    if (e.ctrlKey && e.key === '\\') {
-      e.preventDefault()
-      toggleMainLayout()
-    }
-  }
-  ...
-}, [activeMainTab, mainLayout, setActiveMainTab, toggleMainLayout])
-
-// タブバーの右端に Split ボタン
-<div className="ml-auto flex items-center pr-2">
-  <button onClick={toggleMainLayout} ...>
-    <Columns2 size={14} />
-  </button>
-</div>
-```
+**削除されたファイル**: `MainTabs.tsx` — `MainArea.tsx` がタブバーを内包するため不要になった。
 
 ---
 
@@ -199,7 +146,7 @@ useEffect(() => {
 | 決定事項 | 理由 | 代替案 |
 |---------|------|--------|
 | `SplitPaneHeader` を独立ファイルにしない | 1-E でのみ使用する小さなコンポーネントのため | `src/components/MainArea/SplitPaneHeader.tsx` として分離（将来的に必要なら移行） |
-| `SplitPane` の `defaultSize` を固定 px で指定 | `SplitPane` が % 指定に非対応 | `useRef` でコンテナ幅を取得して動的計算（複雑度が増すため不採用） |
+| `SplitPane` を使わずカスタムドラッグリサイズ | `SplitPane` にコンテンツを分割すると `TerminalTabs` がアンマウントされ PTY が破棄される | `SplitPane` 使用（PTY セッション破棄の問題あり） |
 | Split 解除時に `activeMainTab` を変更しない | どちらの `[ ✕ ]` を押してもタブモードに戻るのみ（ユーザー確認済み） | 閉じた側に応じてアクティブタブを変更 |
 
 ## 未解決事項
