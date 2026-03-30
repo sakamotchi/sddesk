@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { renderMarkdown } from '../../lib/markdown'
-import { open } from '@tauri-apps/plugin-opener'
+import { openUrl } from '@tauri-apps/plugin-opener'
 
 export function MarkdownPreview({ content }: { content: string }) {
   const [html, setHtml] = useState('')
@@ -44,7 +44,7 @@ export function MarkdownPreview({ content }: { content: string }) {
       const href = a.getAttribute('href')
       if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
         e.preventDefault()
-        open(href)
+        openUrl(href)
       }
     }
     container.addEventListener('click', onClick)
