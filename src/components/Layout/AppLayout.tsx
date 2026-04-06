@@ -16,14 +16,17 @@ export function AppLayout() {
     const handler = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement
       const tag = target.tagName
-      // テキスト入力系とターミナル入力欄はスキップ
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
-      if (target.classList.contains('xterm-helper-textarea')) return
-
       const meta = e.metaKey
       const ctrl = e.ctrlKey
       const shift = e.shiftKey
       const key = e.key
+
+      // 修飾キーなしの通常入力はテキスト入力欄・ターミナルに任せる
+      // 修飾キー付きショートカット（Cmd/Ctrl）はターミナルフォーカス中も処理する
+      if (!meta && !ctrl) {
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+        if (target.classList.contains('xterm-helper-textarea')) return
+      }
 
       // ? → ショートカット一覧を開く/閉じる
       if (key === '?' && !meta && !ctrl) {
@@ -38,16 +41,8 @@ export function AppLayout() {
         return
       }
 
-      // Cmd+T → コンテンツタブを新規作成
+      // Cmd+T → ターミナルタブを新規作成
       if (meta && !shift && !ctrl && key === 't') {
-        e.preventDefault()
-        useContentStore.getState().addNewTab()
-        useAppStore.getState().setActiveMainTab('content')
-        return
-      }
-
-      // Cmd+Shift+T → ターミナルタブを新規作成
-      if (meta && shift && !ctrl && key === 'T') {
         e.preventDefault()
         const { focusedPane } = useTerminalStore.getState()
         useTerminalStore.getState().addTab(focusedPane)
@@ -117,8 +112,9 @@ export function AppLayout() {
       }
     }
 
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
+    // キャプチャフェーズで登録することで xterm.js の keydown ハンドラより先に実行する
+    window.addEventListener('keydown', handler, true)
+    return () => window.removeEventListener('keydown', handler, true)
   }, [])
 
   return (

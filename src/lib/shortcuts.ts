@@ -17,8 +17,7 @@ export const SHORTCUT_DEFS: ShortcutDef[] = [
   { label: 'コンテンツ↔ターミナル切り替え', keys: ['Ctrl', 'Tab'], category: 'ペイン切り替え' },
 
   // タブ操作
-  { label: 'コンテンツタブを新規作成', keys: ['⌘', 'T'], category: 'タブ操作' },
-  { label: 'ターミナルタブを新規作成', keys: ['⌘', '⇧', 'T'], category: 'タブ操作' },
+  { label: 'ターミナルタブを新規作成', keys: ['⌘', 'T'], category: 'タブ操作' },
   { label: 'タブを閉じる', keys: ['⌘', 'W'], category: 'タブ操作' },
   { label: '前のタブへ移動', keys: ['Ctrl', '⇧', 'Tab'], category: 'タブ操作' },
   { label: 'n 番目のタブへ移動', keys: ['⌘', '1-9'], category: 'タブ操作' },

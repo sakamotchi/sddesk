@@ -35,6 +35,13 @@ function buildXtermTheme(isDark: boolean) {
   }
 }
 
+// WKWebView では CSS カスケードの適用が遅延するため、charSizeService の計測用スパンに
+// フォントを直接設定することで非システムフォントの計測精度を保証する
+function applyFontToMeasureElement(container: HTMLElement, fontFamily: string) {
+  const measureEl = container.querySelector<HTMLElement>('.xterm-char-measure-element')
+  if (measureEl) measureEl.style.fontFamily = toFontFamilyCSS(fontFamily)
+}
+
 export function TerminalPanel({ tabId, cwd = "/", isActive = true }: TerminalPanelProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<Terminal | null>(null);
@@ -42,6 +49,9 @@ export function TerminalPanel({ tabId, cwd = "/", isActive = true }: TerminalPan
   const ptyIdRef = useRef<string | null>(null);
   // 非表示中にフォントが変更されたとき、表示時に再計測が必要なことを示すフラグ
   const needsRemeasureRef = useRef(false);
+  // フレッシュスパンで計測した文字幅（ResizeObserver / useLayoutEffect で charSizeService の
+  // DOM 計測をバイパスするためにキャッシュする。フォント変更時に recreateTerminal でリセット）
+  const charWidthRef = useRef(0);
 
   const terminalFontFamily = useSettingsStore((s) => s.terminalFontFamily)
   const terminalFontSize = useSettingsStore((s) => s.terminalFontSize)
@@ -118,21 +128,56 @@ export function TerminalPanel({ tabId, cwd = "/", isActive = true }: TerminalPan
       // これにより content view に切り替えた際に cols が 6 などに縮小されるのを防ぐ。
       if (w < 50) return
 
-      needsRemeasureRef.current = false
+      // 非表示中に作成・フォント変更されたターミナルが表示されたとき、
+      // nudge + fit では _afterResize() による charSizeService 汚染を防げないため
+      // 可視状態で再作成することで正確な文字幅を保証する。
+      if (needsRemeasureRef.current) {
+        needsRemeasureRef.current = false
+        setRecreateKey((k) => k + 1)
+        return
+      }
 
       const t = termRef.current
       const fa = fitAddonRef.current
       if (!t || !fa) return
 
-      // fit() 内の _afterResize() が charSizeService を誤った値で上書きすることがある。
-      // fit() の直前に fontSize nudge で charSizeService を強制再計測することで
-      // 正確な文字幅を保証し、ウィンドウリサイズ時の列数ずれを防ぐ。
+      const cachedWidth = charWidthRef.current
+      if (cachedWidth > 0) {
+        // フレッシュスパンで計測済みの正確な文字幅をキャッシュから使い、
+        // DOM 計測（WKWebView で不正確）をバイパスして charSizeService を直接更新する
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const core = (t as any)._core
+        const svc = core?._charSizeService
+        const renderSvc = core?._renderService
+        if (svc && renderSvc) {
+          svc.width = cachedWidth
+          renderSvc.handleCharSizeChanged()
+          requestAnimationFrame(() => {
+            fa.fit()
+            syncPtySize()
+            // fit() 内の _afterResize() が svc.width を DOM 計測で上書きするため再適用する
+            svc.width = cachedWidth
+            renderSvc.handleCharSizeChanged()
+            t.refresh(0, t.rows - 1)
+          })
+          return
+        }
+      }
+
+      // フォールバック: charWidth 未計測の場合は nudge ベースの DOM 計測を使う
+      if (containerRef.current) {
+        applyFontToMeasureElement(containerRef.current, useSettingsStore.getState().terminalFontFamily)
+      }
       const sz = t.options.fontSize!
       t.options.fontSize = sz + 0.001
       t.options.fontSize = sz
       requestAnimationFrame(() => {
         fa.fit()
         syncPtySize()
+        const sz2 = t.options.fontSize!
+        t.options.fontSize = sz2 + 0.001
+        t.options.fontSize = sz2
+        t.refresh(0, t.rows - 1)
       })
     });
     resizeObserver.observe(containerRef.current);
@@ -169,6 +214,9 @@ export function TerminalPanel({ tabId, cwd = "/", isActive = true }: TerminalPan
     const recreateTerminal = () => {
       if (!containerRef.current) return
 
+      // フォント計測キャッシュをリセット（フレッシュスパン計測完了まで ResizeObserver はフォールバックを使う）
+      charWidthRef.current = 0
+
       // 旧ターミナルのDOM残骸を確実に除去
       containerRef.current.innerHTML = ''
 
@@ -185,9 +233,11 @@ export function TerminalPanel({ tabId, cwd = "/", isActive = true }: TerminalPan
       term.open(containerRef.current);
 
       // .xterm-char-measure-element は body の font-family を継承するため、
-      // .xterm 要素に正しい font-family を明示的に設定することで計測精度を確保する。
+      // .xterm 要素と計測用スパンの両方に正しい font-family を直接設定する。
+      // inline style による直接設定により WKWebView の CSS カスケード遅延を回避する。
       const xtermEl = containerRef.current.querySelector<HTMLElement>('.xterm')
       if (xtermEl) xtermEl.style.fontFamily = toFontFamilyCSS(terminalFontFamily)
+      applyFontToMeasureElement(containerRef.current, terminalFontFamily)
 
       const existingTab = getTab()
       if (existingTab?.scrollback) {
@@ -219,30 +269,78 @@ export function TerminalPanel({ tabId, cwd = "/", isActive = true }: TerminalPan
     recreateTerminal()
 
     // フォントが WKWebView に確実に反映されてから文字幅を再計測する。
-    // term.open() 直後は CSS がまだ適用されていないことがあるため、
-    // document.fonts.load() 完了後の requestAnimationFrame で強制再計測する。
-    const fontKey = `${terminalFontSize}px ${toFontFamilyCSS(terminalFontFamily)}`
-    document.fonts.load(fontKey).then(() => {
+    // charSizeService の計測用スパンは再利用されるため WKWebView の内部フォントキャッシュの
+    // 影響を受けることがある。独立した新規スパンを DOM に追加し 2 RAF 待機することで
+    // WKWebView が非システムフォントを確実に適用してから offsetWidth を読み取る。
+    requestAnimationFrame(() => {
       if (cancelled || !term || !fitAddon) return
+
+      // 独立した計測スパンを作成する（charSizeService の measure element とは別）
+      const testSpan = document.createElement('span')
+      testSpan.style.cssText =
+        `font-family:${toFontFamilyCSS(terminalFontFamily)};` +
+        `font-size:${terminalFontSize}px;` +
+        'position:absolute;top:-9999px;left:-9999px;' +
+        'visibility:hidden;white-space:nowrap;pointer-events:none;'
+      testSpan.textContent = 'W'.repeat(32)
+      document.body.appendChild(testSpan)
+
+      // RAF1 → WKWebView がスパンに非システムフォントを適用するペイントサイクル
       requestAnimationFrame(() => {
-        if (cancelled || !term || !fitAddon) return
-        // 非表示中（offsetWidth === 0）は計測が狂うためスキップし、
-        // ResizeObserver 発火時に再計測するようフラグを立てる
-        if (!containerRef.current || containerRef.current.offsetWidth === 0) {
-          needsRemeasureRef.current = true
+        if (cancelled || !term || !fitAddon) {
+          testSpan.remove()
           return
         }
-        needsRemeasureRef.current = false
-        // xterm.js OptionsService は値が同じだと onOptionChange を発火しない。
-        // 微小変化 → 元値 の 2 回代入で CharSizeService.measure() を強制実行する。
-        const sz = term.options.fontSize ?? terminalFontSize
-        term.options.fontSize = sz + 0.001
-        term.options.fontSize = sz
-        fitAddon.fit()
-        const ptyId = ptyIdRef.current
-        if (ptyId) tauriApi.resizePty(ptyId, term.cols, term.rows).catch(console.error)
+        // RAF2 → 確実に適用されてから offsetWidth を読み取る
+        requestAnimationFrame(() => {
+          const charWidth = testSpan.offsetWidth / 32
+          testSpan.remove()
+
+          if (cancelled || !term || !fitAddon) return
+          if (!containerRef.current || containerRef.current.offsetWidth === 0) {
+            needsRemeasureRef.current = true
+            return
+          }
+          needsRemeasureRef.current = false
+
+          if (charWidth > 0) {
+            // 計測した正確な文字幅をキャッシュし、charSizeService に反映して cols を再計算する
+            charWidthRef.current = charWidth
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const core = (term as any)._core
+            const svc = core?._charSizeService
+            const renderSvc = core?._renderService
+            if (svc && renderSvc) {
+              svc.width = charWidth
+              renderSvc.handleCharSizeChanged()
+
+              // fit() 内の _afterResize() → charSizeService.measure()（DOM 計測）が
+              // svc.width を上書きするため、fit() 後に再度 charWidth を適用し直す
+              fitAddon.fit()
+              svc.width = charWidth
+              renderSvc.handleCharSizeChanged()
+
+              term.refresh(0, term.rows - 1)
+              const ptyId = ptyIdRef.current
+              if (ptyId) tauriApi.resizePty(ptyId, term.cols, term.rows).catch(console.error)
+              return
+            }
+          }
+
+          // フォールバック: charSizeService へのアクセスに失敗した場合は nudge を使う
+          applyFontToMeasureElement(containerRef.current, terminalFontFamily)
+          const sz = term.options.fontSize ?? terminalFontSize
+          term.options.fontSize = sz + 0.001
+          term.options.fontSize = sz
+          fitAddon.fit()
+          term.options.fontSize = sz + 0.001
+          term.options.fontSize = sz
+          term.refresh(0, term.rows - 1)
+          const ptyId = ptyIdRef.current
+          if (ptyId) tauriApi.resizePty(ptyId, term.cols, term.rows).catch(console.error)
+        })
       })
-    }).catch(() => { /* フォントが見つからない場合は無視 */ })
+    })
 
     return () => {
       cancelled = true
@@ -276,25 +374,80 @@ export function TerminalPanel({ tabId, cwd = "/", isActive = true }: TerminalPan
         const t = termRef.current
         const fa = fitAddonRef.current
         // 非表示中にフォントが変更されていた場合のみ再計測する
+        const cachedWidth = charWidthRef.current
+
         if (needsRemeasureRef.current && t && fa) {
           needsRemeasureRef.current = false
-          // .xterm に正しい font-family を再設定してから CharSizeService に再計測させる。
-          // fontSize nudge で CharSizeService.measure() を起動し、その結果が
-          // _renderService.dimensions に伝播するのを待つためダブル RAF で fit() する。
+          const currentFont = useSettingsStore.getState().terminalFontFamily
           const xtermEl = containerRef.current?.querySelector<HTMLElement>('.xterm')
-          if (xtermEl) xtermEl.style.fontFamily = toFontFamilyCSS(useSettingsStore.getState().terminalFontFamily)
+          if (xtermEl) xtermEl.style.fontFamily = toFontFamilyCSS(currentFont)
+          if (containerRef.current) applyFontToMeasureElement(containerRef.current, currentFont)
+
+          if (cachedWidth > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const core = (t as any)._core
+            const svc = core?._charSizeService
+            const renderSvc = core?._renderService
+            if (svc && renderSvc) {
+              svc.width = cachedWidth
+              renderSvc.handleCharSizeChanged()
+              requestAnimationFrame(() => {
+                fa.fit()
+                svc.width = cachedWidth
+                renderSvc.handleCharSizeChanged()
+                t.refresh(0, t.rows - 1)
+                const ptyId = ptyIdRef.current
+                if (ptyId) tauriApi.resizePty(ptyId, t.cols, t.rows).catch(console.error)
+                t.focus()
+              })
+              return
+            }
+          }
+
+          // フォールバック: nudge ベース
           const sz = t.options.fontSize!
           t.options.fontSize = sz + 0.001
           t.options.fontSize = sz
           requestAnimationFrame(() => {
             fa.fit()
+            const sz2 = t.options.fontSize!
+            t.options.fontSize = sz2 + 0.001
+            t.options.fontSize = sz2
+            t.refresh(0, t.rows - 1)
             const ptyId = ptyIdRef.current
             if (ptyId) tauriApi.resizePty(ptyId, t.cols, t.rows).catch(console.error)
             t.focus()
           })
-        } else {
-          fa?.fit()
-          t?.focus()
+        } else if (t && fa) {
+          if (cachedWidth > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const core = (t as any)._core
+            const svc = core?._charSizeService
+            const renderSvc = core?._renderService
+            if (svc && renderSvc) {
+              svc.width = cachedWidth
+              renderSvc.handleCharSizeChanged()
+              fa.fit()
+              svc.width = cachedWidth
+              renderSvc.handleCharSizeChanged()
+              t.refresh(0, t.rows - 1)
+              t.focus()
+              return
+            }
+          }
+
+          // フォールバック: nudge ベース
+          if (containerRef.current) {
+            applyFontToMeasureElement(containerRef.current, useSettingsStore.getState().terminalFontFamily)
+          }
+          const sz = t.options.fontSize!
+          t.options.fontSize = sz + 0.001
+          t.options.fontSize = sz
+          fa.fit()
+          t.options.fontSize = sz + 0.001
+          t.options.fontSize = sz
+          t.refresh(0, t.rows - 1)
+          t.focus()
         }
       });
     }

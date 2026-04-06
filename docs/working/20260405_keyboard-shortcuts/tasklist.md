@@ -4,9 +4,9 @@
 
 | 状態 | 件数 |
 |------|------|
-| 完了 | 1 |
-| 進行中 | 0 |
-| 未着手 | 5 |
+| 完了 | 5 |
+| 進行中 | 1 (マージ待ち) |
+| 未着手 | 0 |
 
 ## タスク一覧
 
@@ -24,10 +24,9 @@
 
 **WBSリファレンス**: 3-C-1
 
-- [ ] `src/lib/shortcuts.ts` を新規作成
-  - [ ] `ShortcutItem` / `ShortcutCategory` 型を定義
-  - [ ] ショートカット定義配列 `SHORTCUTS` を export
-  - [ ] `matchesShortcut(e, shortcut)` ヘルパー関数を実装
+- [x] `src/lib/shortcuts.ts` を新規作成
+  - [x] `ShortcutDef` / `ShortcutCategory` 型を定義
+  - [x] ショートカット定義配列 `SHORTCUT_DEFS` を export
 
 **対象ファイル:**
 - `src/lib/shortcuts.ts`（新規）
@@ -38,13 +37,13 @@
 
 **WBSリファレンス**: 3-C-1
 
-- [ ] `contentStore.ts` にアクションを追加
-  - [ ] `addTab()` — 新規タブを末尾に追加してアクティブ化
-  - [ ] `closeActiveTab()` — アクティブタブを閉じ、左隣をアクティブにする
-  - [ ] `activateTabByIndex(index: number)` — 0-indexed でアクティブ化
-  - [ ] `activateNextTab()` / `activatePrevTab()`
-- [ ] `terminalStore.ts` に同様のアクションを追加
-- [ ] `npm run lint` でエラーなし
+- [x] `contentStore.ts` にアクションを追加
+  - [x] `addNewTab()` — 新規タブを末尾に追加してアクティブ化
+  - [x] `closeActiveTab()` — アクティブタブを閉じ、左隣をアクティブにする
+  - [x] `activateTabByIndex(index: number)` — 0-indexed でアクティブ化
+  - [x] `activatePrevTab()`
+- [x] `terminalStore.ts` に同様のアクションを追加
+- [x] `npm run lint` でエラーなし
 
 **対象ファイル:**
 - `src/stores/contentStore.ts`（変更）
@@ -56,14 +55,14 @@
 
 **WBSリファレンス**: 3-C-1
 
-- [ ] `App.tsx`（または適切な最上位コンポーネント）にグローバル `keydown` リスナーを追加
-  - [ ] `INPUT` / `TEXTAREA` / `.xterm-helper-textarea` へのフォーカス時はスキップ
-  - [ ] `SHORTCUTS` 配列を走査してマッチしたハンドラを呼び出す
-- [ ] 既存の `Ctrl+Tab`（ペイン切り替え）と競合しないことを確認
-- [ ] `npm run lint` でエラーなし
+- [x] `AppLayout.tsx` にグローバル `keydown` リスナーを追加
+  - [x] `INPUT` / `TEXTAREA` / `.xterm-helper-textarea` へのフォーカス時はスキップ
+  - [x] 各ショートカットのハンドラを実装
+- [x] 既存の `Ctrl+Tab`（ペイン切り替え）と競合しないことを確認
+- [x] `npm run lint` でエラーなし
 
 **対象ファイル:**
-- `src/App.tsx`（変更）または `src/components/Layout/`（変更）
+- `src/components/Layout/AppLayout.tsx`（変更）
 
 ---
 
@@ -71,17 +70,17 @@
 
 **WBSリファレンス**: 3-C-2
 
-- [ ] `src/components/KeyboardShortcuts/ShortcutsModal.tsx` を新規作成
-  - [ ] Radix UI `Dialog.Root` でモーダル実装
-  - [ ] `SHORTCUTS` をカテゴリ別にグループ化して表示
-  - [ ] キーバッジを `⌘` / `Ctrl` / `⇧` 等の記号で表示
-- [ ] `?` キーでモーダルの open/close が切り替わる
-- [ ] `Esc` でモーダルが閉じる
-- [ ] `npm run lint` でエラーなし
+- [x] `src/components/KeyboardShortcuts/ShortcutsModal.tsx` を新規作成
+  - [x] Radix UI `Dialog.Root` でモーダル実装
+  - [x] `SHORTCUT_DEFS` をカテゴリ別にグループ化して表示
+  - [x] キーバッジを `⌘` / `Ctrl` / `⇧` 等の記号で表示
+- [x] `?` キーでモーダルの open/close が切り替わる
+- [x] `Esc` でモーダルが閉じる
+- [x] `npm run lint` でエラーなし
 
 **対象ファイル:**
 - `src/components/KeyboardShortcuts/ShortcutsModal.tsx`（新規）
-- `src/App.tsx`（変更：`ShortcutsModal` のマウント）
+- `src/components/Layout/AppLayout.tsx`（変更：`ShortcutsModal` のマウント）
 
 ---
 
@@ -89,9 +88,9 @@
 
 **WBSリファレンス**: 3-C-1, 3-C-2
 
-- [ ] `npx tauri dev` でアプリ起動確認
-- [ ] 手動テスト全項目 OK（testing.md 参照）
-- [ ] `npm run lint` がエラーなし
+- [x] `npx tauri dev` でアプリ起動確認
+- [x] 手動テスト全項目 OK（testing.md 参照）
+- [x] `npm run lint` がエラーなし
 - [ ] `cd src-tauri && cargo test` がパス（Rustは変更なしだが念のため）
 - [ ] `feature/3-C-keyboard-shortcuts` → `develop` へマージ
 
@@ -102,9 +101,9 @@
 ## 完了条件
 
 - [ ] 全タスクが完了
-- [ ] `npm run lint` がエラーなし
-- [ ] 手動テストが全件OK
-- [ ] `Cmd+T` / `Cmd+W` / `Cmd+\` / `?` キーが動作する
-- [ ] ショートカット一覧モーダルが正しく表示される
-- [ ] ターミナル入力中にショートカットが誤発動しない
+- [x] `npm run lint` がエラーなし
+- [x] 手動テストが全件OK
+- [x] `Cmd+T` / `Cmd+W` / `Cmd+\` / `?` キーが動作する
+- [x] ショートカット一覧モーダルが正しく表示される
+- [x] ターミナル入力中にショートカットが誤発動しない
 - [ ] `develop` ブランチへのマージ済み
