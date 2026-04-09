@@ -10,7 +10,12 @@
     "tauri": "tauri",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "version:sync": "node scripts/sync-version.js",
+    "release": "node scripts/release.js",
+    "preversion": "npm test",
+    "version": "npm run version:sync && cargo check --manifest-path src-tauri/Cargo.toml && git add src-tauri/tauri.conf.json src-tauri/Cargo.toml src-tauri/Cargo.lock",
+    "postversion": "git push && git push --tags"
   },
   "dependencies": {
     "@iconify-json/vscode-icons": "^1.2.45",
