@@ -52,9 +52,9 @@ export function CodeViewer({ content, filePath }: { content: string; filePath: s
       className="h-full overflow-auto text-sm"
       style={{
         background: 'var(--color-bg-base)',
-        ['--content-font-family' as const]: toFontFamilyCSS(contentFontFamily, 'sans-serif'),
-        ['--content-font-size' as const]: `${contentFontSize}px`,
-      }}
+        ['--content-font-family' as string]: toFontFamilyCSS(contentFontFamily, 'sans-serif'),
+        ['--content-font-size' as string]: `${contentFontSize}px`,
+      } as React.CSSProperties}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   )

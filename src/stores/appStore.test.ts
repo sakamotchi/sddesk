@@ -67,7 +67,7 @@ describe('appStore persist', () => {
   })
 
   it('fileTree は localStorage に保存されない', () => {
-    useAppStore.getState().setFileTree([{ name: 'test', path: '/test', is_dir: false }])
+    useAppStore.getState().setFileTree([{ name: 'test', path: '/test', is_dir: false, children: null }])
     const saved = JSON.parse(localStorage.getItem('spec-prompt-app-store') ?? '{}')
     expect(saved.state?.fileTree).toBeUndefined()
   })

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { useTerminalStore } from './terminalStore'
 
 function resetStore() {
-  const makeTab = (title: string) => ({ id: crypto.randomUUID(), title, ptyId: null })
+  const makeTab = (title: string) => ({ id: crypto.randomUUID(), title, ptyId: null, scrollback: '' })
   const tab1 = makeTab('Terminal 1')
   const tab2 = makeTab('Terminal 1')
   useTerminalStore.setState({

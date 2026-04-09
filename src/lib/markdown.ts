@@ -7,7 +7,8 @@ import rehypeShiki from '@shikijs/rehype'
 import rehypeStringify from 'rehype-stringify'
 
 // シングルトンでプロセッサーを構築（初回呼び出し時に非同期初期化）
-let processorPromise: Promise<ReturnType<typeof unified>> | null = null
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let processorPromise: Promise<any> | null = null
 let builtTheme = ''
 
 export function invalidateMarkdownProcessor() {
@@ -31,7 +32,7 @@ async function getProcessor(shikiTheme: string) {
         .use(rehypeStringify, { allowDangerousHtml: true })
     })()
   }
-  return processorPromise
+  return processorPromise!
 }
 
 export async function renderMarkdown(content: string, shikiTheme = 'github-dark'): Promise<string> {
