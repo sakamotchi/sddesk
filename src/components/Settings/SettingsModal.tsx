@@ -35,7 +35,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     { value: 'en', label: t('settings.language.en') },
   ]
   const terminalFontOptions = [
-    'Geist Mono',
     'Menlo',
     'Courier New',
     'HackGen35 Console NF',
@@ -93,7 +92,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                   <span className="text-xs text-[var(--color-text-muted)] shrink-0">{t('settings.label.font')}</span>
                   <FontInput
                     value={contentFontFamily}
-                    placeholder="Geist, Inter, system-ui ..."
+                    placeholder="system-ui, Inter ..."
                     onChange={setContentFontFamily}
                   />
                 </div>
@@ -120,7 +119,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                   <FontCommitInput
                     value={terminalFontFamily}
                     suggestions={terminalFontOptions}
-                    fallbackValue="Geist Mono"
+                    fallbackValue="Menlo"
                     onChange={setTerminalFontFamily}
                   />
                 </div>
@@ -235,7 +234,7 @@ function FontInput({
 
   const commit = () => {
     const v = localValue.trim()
-    onChange(v || placeholder.split(',')[0].trim())
+    onChange(v || 'system-ui')
   }
 
   return (

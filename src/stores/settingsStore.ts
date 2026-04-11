@@ -17,9 +17,9 @@ export interface AppearanceSettings {
 
 export const DEFAULT_SETTINGS: AppearanceSettings = {
   theme: 'dark',
-  contentFontFamily: 'Geist',
+  contentFontFamily: 'system-ui',
   contentFontSize: 16,
-  terminalFontFamily: 'Geist Mono',
+  terminalFontFamily: "ui-monospace, 'Cascadia Code', 'Menlo', 'Consolas', monospace",
   terminalFontSize: 14,
 }
 
