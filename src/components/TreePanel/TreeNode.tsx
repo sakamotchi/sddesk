@@ -56,11 +56,13 @@ export const TreeNode = memo(function TreeNode({ node, depth }: TreeNodeProps) {
   const docStatus = useAppStore((s) => s.docStatuses[node.path] ?? null)
 
   const toggleExpandedDir = useAppStore((s) => s.toggleExpandedDir)
+  const selectedFile = useAppStore((s) => s.selectedFile)
   const setSelectedFile = useAppStore((s) => s.setSelectedFile)
   const updateDirChildren = useAppStore((s) => s.updateDirChildren)
   const toggleFileSelection = useAppStore((s) => s.toggleFileSelection)
   const clearFileSelection = useAppStore((s) => s.clearFileSelection)
   const setEditingState = useAppStore((s) => s.setEditingState)
+  const creatingState = useAppStore((s) => s.creatingState)
   const setCreatingState = useAppStore((s) => s.setCreatingState)
   const setActiveMainTab = useAppStore((s) => s.setActiveMainTab)
   const loadDocStatuses = useAppStore((s) => s.loadDocStatuses)

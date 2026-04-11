@@ -87,6 +87,9 @@ export const tauriApi = {
 
   loadFontBytes: (family: string): Promise<number[]> =>
     invoke("load_font_bytes", { family }),
+
+  sendNotification: (title: string, body: string): Promise<void> =>
+    invoke("send_notification", { title, body }),
 };
 
 export interface AppearanceSettings {
