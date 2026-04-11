@@ -105,8 +105,7 @@
       "theme": "テーマ",
       "content": "コンテンツ",
       "terminal": "ターミナル",
-      "language": "言語",
-      "notification": "通知"
+      "language": "言語"
     },
     "theme": {
       "dark": "ダーク",
@@ -123,10 +122,6 @@
     },
     "button": {
       "apply": "適用"
-    },
-    "notification": {
-      "claudeCode": "Claude Code 通知",
-      "claudeCodeDesc": "作業完了・承認待ちをデスクトップ通知でお知らせします"
     }
   },
   "docStatus": {

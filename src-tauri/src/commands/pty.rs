@@ -71,8 +71,8 @@ pub fn spawn_pty(
 
     // TERM が未設定だと zsh がバックスペースの描画シーケンスを正しく送れず
     // xterm.js 上でスペースとして表示されるため、明示的にフォールバックを設定する
-    let term_type = std::env::var("TERM").unwrap_or_else(|_| "xterm-256color".to_string());
-    cmd.env("TERM", &term_type);
+    cmd.env("TERM", "xterm-256color");
+    cmd.env("COLORTERM", "truecolor");
 
     let _child = pair
         .slave

@@ -238,12 +238,6 @@ export function TerminalPanel({ tabId, cwd = "/", isActive = true }: TerminalPan
       term.loadAddon(fitAddon);
       term.open(containerRef.current);
 
-      term.parser.registerOscHandler(9, (data) => {
-        if (!useSettingsStore.getState().notificationEnabled) return true
-        tauriApi.sendNotification('SpecPrompt / Claude Code', data).catch(console.error)
-        return true
-      })
-
       // .xterm-char-measure-element は body の font-family を継承するため、
       // .xterm 要素と計測用スパンの両方に正しい font-family を直接設定する。
       // inline style による直接設定により WKWebView の CSS カスケード遅延を回避する。

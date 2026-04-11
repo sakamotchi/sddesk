@@ -105,8 +105,7 @@
       "theme": "Theme",
       "content": "Content",
       "terminal": "Terminal",
-      "language": "Language",
-      "notification": "Notifications"
+      "language": "Language"
     },
     "theme": {
       "dark": "Dark",
@@ -123,10 +122,6 @@
     },
     "button": {
       "apply": "Apply"
-    },
-    "notification": {
-      "claudeCode": "Claude Code Notifications",
-      "claudeCodeDesc": "Get notified when Claude Code completes a task or needs your approval"
     }
   },
   "docStatus": {

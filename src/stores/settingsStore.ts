@@ -6,7 +6,6 @@ export type Theme = 'dark' | 'light' | 'system'
 export type Language = 'ja' | 'en'
 
 const LANGUAGE_KEY = 'spec-prompt-language'
-const NOTIFICATION_KEY = 'spec-prompt-notification-enabled'
 
 export interface AppearanceSettings {
   theme: Theme
@@ -26,14 +25,12 @@ export const DEFAULT_SETTINGS: AppearanceSettings = {
 
 interface SettingsState extends AppearanceSettings {
   language: Language
-  notificationEnabled: boolean
   setTheme: (theme: Theme) => void
   setContentFontFamily: (family: string) => void
   setContentFontSize: (size: number) => void
   setTerminalFontFamily: (family: string) => void
   setTerminalFontSize: (size: number) => void
   setLanguage: (lang: Language) => void
-  setNotificationEnabled: (enabled: boolean) => void
   loadSettings: () => Promise<void>
   saveSettings: () => Promise<void>
 }
@@ -52,7 +49,6 @@ export function applyTheme(theme: Theme) {
 export const useSettingsStore = create<SettingsState>()((set, get) => ({
   ...DEFAULT_SETTINGS,
   language: (localStorage.getItem(LANGUAGE_KEY) as Language) ?? 'ja',
-  notificationEnabled: localStorage.getItem(NOTIFICATION_KEY) !== 'false',
 
   setTheme: (theme) => {
     set({ theme })
@@ -80,11 +76,6 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     set({ language: lang })
     localStorage.setItem(LANGUAGE_KEY, lang)
     i18n.changeLanguage(lang)
-  },
-
-  setNotificationEnabled: (enabled) => {
-    set({ notificationEnabled: enabled })
-    localStorage.setItem(NOTIFICATION_KEY, String(enabled))
   },
 
   loadSettings: async () => {

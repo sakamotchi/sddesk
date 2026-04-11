@@ -24,8 +24,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const setTerminalFontFamily = useSettingsStore((s) => s.setTerminalFontFamily)
   const terminalFontSize = useSettingsStore((s) => s.terminalFontSize)
   const setTerminalFontSize = useSettingsStore((s) => s.setTerminalFontSize)
-  const notificationEnabled = useSettingsStore((s) => s.notificationEnabled)
-  const setNotificationEnabled = useSettingsStore((s) => s.setNotificationEnabled)
 
   const themeOptions: { value: Theme; label: string }[] = [
     { value: 'dark', label: t('settings.theme.dark') },
@@ -134,39 +132,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                     onChange={setTerminalFontSize}
                   />
                 </div>
-              </div>
-            </section>
-
-            {/* 通知セクション */}
-            <section>
-              <h3 className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-3">
-                {t('settings.section.notification')}
-              </h3>
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-xs text-[var(--color-text-primary)]">
-                    {t('settings.notification.claudeCode')}
-                  </span>
-                  <span className="text-xs text-[var(--color-text-muted)]">
-                    {t('settings.notification.claudeCodeDesc')}
-                  </span>
-                </div>
-                <button
-                  role="switch"
-                  aria-checked={notificationEnabled}
-                  onClick={() => setNotificationEnabled(!notificationEnabled)}
-                  className={`relative shrink-0 w-9 h-5 rounded-full transition-colors ${
-                    notificationEnabled
-                      ? 'bg-[var(--color-accent)]'
-                      : 'bg-[var(--color-border)]'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
-                      notificationEnabled ? 'translate-x-4' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
               </div>
             </section>
 

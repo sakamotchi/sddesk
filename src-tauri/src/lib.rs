@@ -2,7 +2,6 @@ mod commands;
 
 use commands::config::{add_recent_project, get_appearance, get_recent_projects, save_appearance};
 use commands::fonts::load_font_bytes;
-use commands::notification::send_notification;
 use commands::filesystem::{
     create_dir, create_file, delete_path, open_in_editor, read_dir, read_file, rename_path,
     write_file,
@@ -15,7 +14,6 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_notification::init())
         .manage(PtyManager::new())
         .invoke_handler(tauri::generate_handler![
             spawn_pty,
@@ -35,7 +33,6 @@ pub fn run() {
             get_appearance,
             save_appearance,
             load_font_bytes,
-            send_notification,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
