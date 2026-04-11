@@ -63,11 +63,16 @@ pub fn spawn_pty(
     cmd.env("LC_CTYPE", &locale);
 
     // HOME, PATH など基本的な変数もプロダクションビルドで欠落しうるため継承する
-    for key in &["HOME", "PATH", "TERM", "USER", "SHELL"] {
+    for key in &["HOME", "PATH", "USER", "SHELL"] {
         if let Ok(val) = std::env::var(key) {
             cmd.env(key, val);
         }
     }
+
+    // TERM が未設定だと zsh がバックスペースの描画シーケンスを正しく送れず
+    // xterm.js 上でスペースとして表示されるため、明示的にフォールバックを設定する
+    let term_type = std::env::var("TERM").unwrap_or_else(|_| "xterm-256color".to_string());
+    cmd.env("TERM", &term_type);
 
     let _child = pair
         .slave
