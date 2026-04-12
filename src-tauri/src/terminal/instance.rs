@@ -113,3 +113,145 @@ impl TerminalInstance {
         self.term.resize(size);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_creates_instance() {
+        let ti = TerminalInstance::new(80, 24);
+        // Term が正しいサイズで生成されていること
+        assert_eq!(ti.term.columns(), 80);
+        assert_eq!(ti.term.screen_lines(), 24);
+    }
+
+    #[test]
+    fn test_advance_produces_damage() {
+        let mut ti = TerminalInstance::new(80, 24);
+        let _ = ti.collect_damage(); // 初期 damage を消費
+        ti.advance(b"Hello");
+        let result = ti.collect_damage();
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_advance_cells_contain_text() {
+        let mut ti = TerminalInstance::new(80, 24);
+        ti.advance(b"ABC");
+        let (cells, _cursor, _so, _sl) = ti.collect_damage().unwrap();
+        // 'A', 'B', 'C' がセルに含まれること
+        assert!(cells.iter().any(|c| c.ch == 'A'));
+        assert!(cells.iter().any(|c| c.ch == 'B'));
+        assert!(cells.iter().any(|c| c.ch == 'C'));
+    }
+
+    #[test]
+    fn test_advance_cursor_position() {
+        let mut ti = TerminalInstance::new(80, 24);
+        ti.advance(b"Hi");
+        let (_cells, cursor, _so, _sl) = ti.collect_damage().unwrap();
+        // カーソルは 'H'(col=0), 'i'(col=1) の次 → col=2
+        assert_eq!(cursor.row, 0);
+        assert_eq!(cursor.col, 2);
+    }
+
+    #[test]
+    fn test_advance_no_scroll_initially() {
+        let mut ti = TerminalInstance::new(80, 24);
+        ti.advance(b"test");
+        let (_cells, _cursor, scroll_offset, scrollback_len) = ti.collect_damage().unwrap();
+        assert_eq!(scroll_offset, 0);
+        assert_eq!(scrollback_len, 0);
+    }
+
+    #[test]
+    fn test_advance_builds_scrollback() {
+        let mut ti = TerminalInstance::new(80, 24);
+        // 24行を超える出力でスクロールバックが発生
+        for _ in 0..30 {
+            ti.advance(b"line\r\n");
+        }
+        let (_cells, _cursor, scroll_offset, scrollback_len) = ti.collect_damage().unwrap();
+        assert_eq!(scroll_offset, 0); // 自動スクロールで末尾にいる
+        assert!(scrollback_len > 0, "scrollback should have accumulated");
+    }
+
+    #[test]
+    fn test_scroll_changes_offset() {
+        let mut ti = TerminalInstance::new(80, 24);
+        for _ in 0..50 {
+            ti.advance(b"line\r\n");
+        }
+        let _ = ti.collect_damage(); // damage をリセット
+
+        // 上にスクロール
+        ti.scroll(5);
+        let result = ti.collect_damage();
+        assert!(result.is_some());
+        let (_cells, _cursor, scroll_offset, _sl) = result.unwrap();
+        assert_eq!(scroll_offset, 5);
+    }
+
+    #[test]
+    fn test_scroll_back_to_bottom() {
+        let mut ti = TerminalInstance::new(80, 24);
+        for _ in 0..50 {
+            ti.advance(b"line\r\n");
+        }
+        let _ = ti.collect_damage();
+
+        ti.scroll(10); // 上に 10 行
+        let _ = ti.collect_damage();
+
+        ti.scroll(-10); // 下に 10 行（末尾に戻る）
+        let result = ti.collect_damage();
+        assert!(result.is_some());
+        let (_cells, _cursor, scroll_offset, _sl) = result.unwrap();
+        assert_eq!(scroll_offset, 0);
+    }
+
+    #[test]
+    fn test_scroll_at_boundary_offset_stays_zero() {
+        let mut ti = TerminalInstance::new(80, 24);
+        ti.advance(b"short");
+        let _ = ti.collect_damage();
+
+        // スクロールバックがない状態で上スクロールしても offset は 0 のまま
+        ti.scroll(5);
+        // damage の有無は実装次第だが、offset は 0
+        if let Some((_cells, _cursor, scroll_offset, _sl)) = ti.collect_damage() {
+            assert_eq!(scroll_offset, 0);
+        }
+    }
+
+    #[test]
+    fn test_resize() {
+        let mut ti = TerminalInstance::new(80, 24);
+        ti.resize(120, 40);
+        assert_eq!(ti.term.columns(), 120);
+        assert_eq!(ti.term.screen_lines(), 40);
+    }
+
+    #[test]
+    fn test_resize_produces_damage() {
+        let mut ti = TerminalInstance::new(80, 24);
+        let _ = ti.collect_damage(); // 初期 damage を消費
+        ti.resize(100, 30);
+        // resize は damage を発生させる
+        assert!(ti.collect_damage().is_some());
+    }
+
+    #[test]
+    fn test_resize_cols_rows_reflected_in_cells() {
+        let mut ti = TerminalInstance::new(80, 24);
+        ti.resize(40, 10);
+        ti.advance(b"X");
+        let (cells, _cursor, _so, _sl) = ti.collect_damage().unwrap();
+        // すべてのセルが新しいサイズ範囲内にあること
+        for cell in &cells {
+            assert!(cell.col < 40, "col {} should be < 40", cell.col);
+            assert!(cell.row < 10, "row {} should be < 10", cell.row);
+        }
+    }
+}
