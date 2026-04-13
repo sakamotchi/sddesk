@@ -60,6 +60,11 @@ export function encodeKey(e: KeyEventLike): string | null {
     if (key === ']') return '\x1d'
   }
 
+  // Shift+Enter → LF（改行挿入シグナル）
+  // Claude Code 等のアプリは Shift+Enter を改行として認識するために
+  // CR(\r) ではなく LF(\n) を期待する
+  if (e.shiftKey && key === 'Enter') return '\n'
+
   // 特殊キー
   if (KEY_MAP[key]) return KEY_MAP[key]
 
