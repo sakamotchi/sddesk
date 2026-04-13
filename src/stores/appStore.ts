@@ -101,7 +101,17 @@ export const useAppStore = create<AppState>()(
         }),
       updateDirChildren: (path, children) =>
         set((state) => {
-          if (path === state.projectRoot) return { fileTree: children }
+          if (path === state.projectRoot) {
+            // ルート更新時も展開済みフォルダの子要素を維持する
+            const merged = children.map((newNode) => {
+              const existing = state.fileTree.find((n) => n.path === newNode.path)
+              if (existing?.children && newNode.is_dir) {
+                return { ...newNode, children: existing.children }
+              }
+              return newNode
+            })
+            return { fileTree: merged }
+          }
           return { fileTree: setNodeChildren(state.fileTree, path, children) }
         }),
 
