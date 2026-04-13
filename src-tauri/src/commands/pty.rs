@@ -54,7 +54,11 @@ pub fn spawn_pty(
 
     let resolved_cwd = resolve_cwd(&cwd);
 
+    // ログインシェルとして起動することで .zprofile / .zshrc が読み込まれ、
+    // brew, pyenv, direnv 等のユーザーが追加した PATH が反映される。
+    // macOS の LaunchServices 経由で起動した .app は PATH が最小限のため必須。
     let mut cmd = CommandBuilder::new(&shell);
+    cmd.arg("-l");
     cmd.cwd(&resolved_cwd);
 
     // プロダクションビルドでは .app が LaunchServices 経由で起動されるため、
@@ -66,10 +70,30 @@ pub fn spawn_pty(
     cmd.env("LC_CTYPE", &locale);
 
     // HOME, PATH など基本的な変数もプロダクションビルドで欠落しうるため継承する
-    for key in &["HOME", "PATH", "USER", "SHELL"] {
+    for key in &["HOME", "USER", "SHELL"] {
         if let Ok(val) = std::env::var(key) {
             cmd.env(key, val);
         }
+    }
+
+    // PATH: LaunchServices 経由で起動した .app は PATH が /usr/bin:/bin 程度しかないため、
+    // Homebrew やユーザーツール（pyenv, direnv 等）のパスを補完する。
+    // ログインシェル (-l) が .zshrc を読み込むことで最終的に正しい PATH になるが、
+    // シェル起動前の段階でも基本的なパスを確保しておく。
+    {
+        let mut path = std::env::var("PATH").unwrap_or_default();
+        let extra_paths = [
+            "/opt/homebrew/bin",      // Apple Silicon Homebrew
+            "/opt/homebrew/sbin",
+            "/usr/local/bin",         // Intel Homebrew
+            "/usr/local/sbin",
+        ];
+        for p in &extra_paths {
+            if !path.contains(p) && std::path::Path::new(p).exists() {
+                path = format!("{}:{}", p, path);
+            }
+        }
+        cmd.env("PATH", path);
     }
 
     // TERM が未設定だと zsh がバックスペースの描画シーケンスを正しく送れず
