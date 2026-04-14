@@ -64,6 +64,9 @@ export const tauriApi = {
 
   closePty: (id: string): Promise<void> => invoke("close_pty", { id }),
 
+  setPtyDisplayTitle: (ptyId: string, title: string): Promise<void> =>
+    invoke("set_pty_display_title", { ptyId, title }),
+
   onPtyOutput: (callback: (output: PtyOutput) => void): Promise<UnlistenFn> =>
     listen<PtyOutput>("pty-output", (event) => callback(event.payload)),
 

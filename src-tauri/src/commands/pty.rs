@@ -144,9 +144,14 @@ pub fn spawn_pty(
                     // OSC 9 通知検出
                     for msg in osc9.feed(&buf[..n]) {
                         if !crate::commands::notification::is_app_focused(&app) {
+                            let cache = app.state::<crate::commands::notification::DisplayTitleCache>();
+                            let title = cache
+                                .get(&pty_id)
+                                .map(|t| format!("Claude Code — {}", t))
+                                .unwrap_or_else(|| "SpecPrompt / Claude Code".to_string());
                             crate::commands::notification::send_native_notification(
                                 &app,
-                                "SpecPrompt / Claude Code",
+                                &title,
                                 &msg,
                             );
                         }
@@ -216,9 +221,11 @@ pub fn close_pty(
     id: String,
     manager: State<PtyManager>,
     terminal_manager: State<TerminalManager>,
+    title_cache: State<crate::commands::notification::DisplayTitleCache>,
 ) -> Result<(), String> {
     manager.instances.lock().unwrap().remove(&id);
     terminal_manager.remove(&id);
+    title_cache.remove(&id);
     Ok(())
 }
 
