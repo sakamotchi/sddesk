@@ -157,6 +157,12 @@ pub fn spawn_pty(
                                 &title,
                                 &msg,
                             );
+
+                            // フロントに未読マーク指示を送る
+                            let _ = app.emit(
+                                "claude-notification-fired",
+                                serde_json::json!({ "pty_id": pty_id.clone() }),
+                            );
                         }
                     }
 

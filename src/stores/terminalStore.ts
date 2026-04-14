@@ -11,6 +11,8 @@ export interface TerminalTab {
   manualTitle: string | null
   /** true のとき manualTitle を表示タイトルとして優先し OSC 更新を表示上無視する */
   pinned: boolean
+  /** 非フォーカス時に OS 通知が発火し、ユーザーがまだ見ていない状態 */
+  hasUnreadNotification: boolean
 }
 
 export interface TerminalGroup {
@@ -31,6 +33,8 @@ interface TerminalState {
   setOscTitle: (ptyId: string, rawTitle: string | null) => void
   renameTab: (tabId: string, title: string) => void
   unpinTab: (tabId: string) => void
+  markUnread: (ptyId: string) => void
+  clearUnread: (tabId: string) => void
   moveTab: (tabId: string, fromPane: 'primary' | 'secondary', toPane: 'primary' | 'secondary') => void
   toggleSplit: () => void
   setFocusedPane: (pane: 'primary' | 'secondary') => void
@@ -47,6 +51,7 @@ const makeTab = (index: number): TerminalTab => ({
   oscTitle: null,
   manualTitle: null,
   pinned: false,
+  hasUnreadNotification: false,
 })
 
 const makeGroup = (index = 1): TerminalGroup => {
@@ -164,6 +169,46 @@ export const useTerminalStore = create<TerminalState>((set) => ({
           if (!t.pinned && t.manualTitle === null) return t
           changed = true
           return { ...t, pinned: false, manualTitle: null }
+        })
+        return changed ? { ...g, tabs } : g
+      }
+      const primary = updateGroup(state.primary)
+      const secondary = updateGroup(state.secondary)
+      if (!changed) return state
+      return { primary, secondary }
+    }),
+
+  markUnread: (ptyId) =>
+    set((state) => {
+      const docFocused = typeof document !== 'undefined' && document.hasFocus()
+      let changed = false
+      const updateGroup = (g: TerminalGroup): TerminalGroup => {
+        const tabs = g.tabs.map((t) => {
+          if (t.ptyId !== ptyId) return t
+          // アクティブ + ドキュメントフォーカス中ならユーザーがすでに見ているので no-op
+          const isActive = g.activeTabId === t.id
+          if (isActive && docFocused) return t
+          if (t.hasUnreadNotification) return t
+          changed = true
+          return { ...t, hasUnreadNotification: true }
+        })
+        return changed ? { ...g, tabs } : g
+      }
+      const primary = updateGroup(state.primary)
+      const secondary = updateGroup(state.secondary)
+      if (!changed) return state
+      return { primary, secondary }
+    }),
+
+  clearUnread: (tabId) =>
+    set((state) => {
+      let changed = false
+      const updateGroup = (g: TerminalGroup): TerminalGroup => {
+        const tabs = g.tabs.map((t) => {
+          if (t.id !== tabId) return t
+          if (!t.hasUnreadNotification) return t
+          changed = true
+          return { ...t, hasUnreadNotification: false }
         })
         return changed ? { ...g, tabs } : g
       }

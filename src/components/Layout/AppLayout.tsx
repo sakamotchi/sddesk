@@ -12,6 +12,7 @@ import {
   type TerminalGroup,
 } from '../../stores/terminalStore'
 import { tauriApi } from '../../lib/tauriApi'
+import { getCurrentWindow } from '@tauri-apps/api/window'
 
 export function AppLayout() {
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -161,6 +162,47 @@ export function AppLayout() {
       disposed = true
       if (unlisten) unlisten()
       unsubscribe()
+    }
+  }, [])
+
+  // 通知発火時の未読マーク付与と、アプリフォーカス復帰時のアクティブタブのマーク解除
+  useEffect(() => {
+    let disposed = false
+    let unlistenNotif: (() => void) | null = null
+    let unlistenFocus: (() => void) | null = null
+
+    tauriApi
+      .onClaudeNotificationFired(({ pty_id }) => {
+        useTerminalStore.getState().markUnread(pty_id)
+      })
+      .then((fn) => {
+        if (disposed) fn()
+        else unlistenNotif = fn
+      })
+      .catch(console.error)
+
+    getCurrentWindow()
+      .onFocusChanged(({ payload: focused }) => {
+        if (!focused) return
+        const state = useTerminalStore.getState()
+        for (const pane of ['primary', 'secondary'] as const) {
+          const group = state[pane]
+          const active = group.tabs.find((t) => t.id === group.activeTabId)
+          if (active?.hasUnreadNotification) {
+            state.clearUnread(active.id)
+          }
+        }
+      })
+      .then((fn) => {
+        if (disposed) fn()
+        else unlistenFocus = fn
+      })
+      .catch(console.error)
+
+    return () => {
+      disposed = true
+      if (unlistenNotif) unlistenNotif()
+      if (unlistenFocus) unlistenFocus()
     }
   }, [])
 

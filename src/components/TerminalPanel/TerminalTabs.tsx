@@ -117,6 +117,13 @@ function TerminalPane({ pane }: TerminalPaneProps) {
             const isEditing = tab.id === editingTabId
             const display = computeDisplayTitle(tab)
             const canClose = group.tabs.length > 1
+            const unread = tab.hasUnreadNotification
+            const handleTabClick = () => {
+              setActiveTab(tab.id, pane)
+              if (unread && typeof document !== 'undefined' && document.hasFocus()) {
+                useTerminalStore.getState().clearUnread(tab.id)
+              }
+            }
             return (
               <TabContextMenu
                 key={tab.id}
@@ -129,9 +136,10 @@ function TerminalPane({ pane }: TerminalPaneProps) {
                 <button
                   draggable={!isEditing}
                   onDragStart={isEditing ? undefined : (e) => handleDragStart(e, tab.id)}
-                  onClick={isEditing ? undefined : () => setActiveTab(tab.id, pane)}
+                  onClick={isEditing ? undefined : handleTabClick}
                   onDoubleClick={() => setEditingTabId(tab.id)}
                   title={isEditing ? undefined : display}
+                  data-unread={unread ? 'true' : undefined}
                   className={`flex items-center gap-1.5 h-full px-3 text-xs flex-shrink-0 transition-colors outline-none group ${
                     isEditing ? 'cursor-text' : 'cursor-grab active:cursor-grabbing'
                   }`}
@@ -140,6 +148,10 @@ function TerminalPane({ pane }: TerminalPaneProps) {
                     borderBottom: isActive
                       ? '2px solid var(--color-accent)'
                       : '2px solid transparent',
+                    borderLeft: unread
+                      ? '2px solid rgb(245, 158, 11)'
+                      : '2px solid transparent',
+                    background: unread ? 'rgba(245, 158, 11, 0.2)' : undefined,
                   }}
                 >
                   {isEditing ? (
@@ -149,7 +161,22 @@ function TerminalPane({ pane }: TerminalPaneProps) {
                       onCancel={() => setEditingTabId(null)}
                     />
                   ) : (
-                    <span className="max-w-[12rem] truncate">{display}</span>
+                    <span className="flex items-center gap-1 max-w-[12rem] min-w-0">
+                      {unread && (
+                        <span
+                          aria-hidden="true"
+                          className="flex-shrink-0"
+                          style={{
+                            color: 'rgb(245, 158, 11)',
+                            fontSize: '0.7em',
+                            lineHeight: 1,
+                          }}
+                        >
+                          ●
+                        </span>
+                      )}
+                      <span className="truncate">{display}</span>
+                    </span>
                   )}
                   {!isEditing && canClose && (
                     <span

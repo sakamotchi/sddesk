@@ -14,6 +14,7 @@ function makeTab(fallbackTitle: string): TerminalTab {
     oscTitle: null,
     manualTitle: null,
     pinned: false,
+    hasUnreadNotification: false,
   }
 }
 
@@ -158,6 +159,7 @@ describe('computeDisplayTitle', () => {
     oscTitle: null,
     manualTitle: null,
     pinned: false,
+    hasUnreadNotification: false,
     ...overrides,
   })
 
@@ -310,6 +312,87 @@ describe('unpinTab', () => {
     const stateB = useTerminalStore.getState()
     expect(stateA.primary).toBe(stateB.primary)
     expect(stateA.secondary).toBe(stateB.secondary)
+  })
+})
+
+describe('markUnread / clearUnread', () => {
+  beforeEach(resetStore)
+
+  it('非アクティブタブに hasUnreadNotification=true がセットされる', () => {
+    const { primary } = useTerminalStore.getState()
+    const tabId = primary.tabs[0].id
+    useTerminalStore.getState().setPtyId(tabId, 'pty-0')
+    // 新規タブを追加してそちらをアクティブに → tab 1 は非アクティブ
+    useTerminalStore.getState().addTab('primary')
+    useTerminalStore.getState().markUnread('pty-0')
+    expect(useTerminalStore.getState().primary.tabs[0].hasUnreadNotification).toBe(true)
+  })
+
+  it('アクティブ + document.hasFocus()=true のタブでは no-op', () => {
+    const { primary } = useTerminalStore.getState()
+    const tabId = primary.tabs[0].id
+    useTerminalStore.getState().setPtyId(tabId, 'pty-0')
+    // document.hasFocus を明示的に true にする
+    const originalHasFocus = document.hasFocus
+    document.hasFocus = () => true
+    try {
+      useTerminalStore.getState().markUnread('pty-0')
+      expect(useTerminalStore.getState().primary.tabs[0].hasUnreadNotification).toBe(false)
+    } finally {
+      document.hasFocus = originalHasFocus
+    }
+  })
+
+  it('アクティブ + document.hasFocus()=false のタブでは mark される', () => {
+    const { primary } = useTerminalStore.getState()
+    const tabId = primary.tabs[0].id
+    useTerminalStore.getState().setPtyId(tabId, 'pty-0')
+    const originalHasFocus = document.hasFocus
+    document.hasFocus = () => false
+    try {
+      useTerminalStore.getState().markUnread('pty-0')
+      expect(useTerminalStore.getState().primary.tabs[0].hasUnreadNotification).toBe(true)
+    } finally {
+      document.hasFocus = originalHasFocus
+    }
+  })
+
+  it('未知の pty_id では何も更新されない', () => {
+    useTerminalStore.getState().markUnread('unknown')
+    const { primary, secondary } = useTerminalStore.getState()
+    expect(primary.tabs.every((t) => !t.hasUnreadNotification)).toBe(true)
+    expect(secondary.tabs.every((t) => !t.hasUnreadNotification)).toBe(true)
+  })
+
+  it('連続 markUnread で state 参照が変化しない', () => {
+    const { primary } = useTerminalStore.getState()
+    const tabId = primary.tabs[0].id
+    useTerminalStore.getState().setPtyId(tabId, 'pty-0')
+    useTerminalStore.getState().addTab('primary')
+    useTerminalStore.getState().markUnread('pty-0')
+    const stateA = useTerminalStore.getState()
+    useTerminalStore.getState().markUnread('pty-0')
+    const stateB = useTerminalStore.getState()
+    expect(stateA.primary).toBe(stateB.primary)
+  })
+
+  it('clearUnread で hasUnreadNotification が false に戻る', () => {
+    const { primary } = useTerminalStore.getState()
+    const tabId = primary.tabs[0].id
+    useTerminalStore.getState().setPtyId(tabId, 'pty-0')
+    useTerminalStore.getState().addTab('primary')
+    useTerminalStore.getState().markUnread('pty-0')
+    useTerminalStore.getState().clearUnread(tabId)
+    expect(useTerminalStore.getState().primary.tabs[0].hasUnreadNotification).toBe(false)
+  })
+
+  it('もともと unread=false のタブへの clearUnread では state 参照が変化しない', () => {
+    const { primary } = useTerminalStore.getState()
+    const tabId = primary.tabs[0].id
+    const stateA = useTerminalStore.getState()
+    useTerminalStore.getState().clearUnread(tabId)
+    const stateB = useTerminalStore.getState()
+    expect(stateA.primary).toBe(stateB.primary)
   })
 })
 

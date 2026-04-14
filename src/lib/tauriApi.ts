@@ -57,6 +57,11 @@ export interface TerminalTitleChangedPayload {
   title: string | null;
 }
 
+// claude-notification-fired イベントの型定義（非フォーカス時に OS 通知が発火したタイミング）
+export interface ClaudeNotificationFiredPayload {
+  pty_id: string;
+}
+
 export const tauriApi = {
   // PTY
   spawnPty: (shell: string, cwd: string, notificationEnabled: boolean): Promise<string> =>
@@ -89,6 +94,13 @@ export const tauriApi = {
     callback: (payload: TerminalTitleChangedPayload) => void,
   ): Promise<UnlistenFn> =>
     listen<TerminalTitleChangedPayload>("terminal-title-changed", (event) =>
+      callback(event.payload),
+    ),
+
+  onClaudeNotificationFired: (
+    callback: (payload: ClaudeNotificationFiredPayload) => void,
+  ): Promise<UnlistenFn> =>
+    listen<ClaudeNotificationFiredPayload>("claude-notification-fired", (event) =>
       callback(event.payload),
     ),
 
