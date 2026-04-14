@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { useTerminalStore, computeDisplayTitle } from '../../stores/terminalStore'
 import { useAppStore } from '../../stores/appStore'
 import { TerminalPanel } from './TerminalPanel'
+import { TabInlineRenameInput } from './TabInlineRenameInput'
+import { TabContextMenu } from './TabContextMenu'
 
 const DRAG_MIME = 'application/x-specprompt-tab'
 
@@ -26,6 +28,18 @@ function TerminalPane({ pane }: TerminalPaneProps) {
   const [isDragOver, setIsDragOver] = useState(false)
   // ドラッグ中はターミナルコンテンツの pointer-events を無効化して xterm に drop が届かないようにする
   const [isAnyTabDragging, setIsAnyTabDragging] = useState(false)
+  // インライン編集中のタブ ID（null のときは通常表示）
+  const [editingTabId, setEditingTabId] = useState<string | null>(null)
+
+  const commitRename = useCallback((tabId: string, title: string) => {
+    const trimmed = title.trim()
+    if (trimmed.length === 0) {
+      useTerminalStore.getState().unpinTab(tabId)
+    } else {
+      useTerminalStore.getState().renameTab(tabId, trimmed)
+    }
+    setEditingTabId(null)
+  }, [])
 
   useEffect(() => {
     const onDragStart = () => setIsAnyTabDragging(true)
@@ -100,35 +114,56 @@ function TerminalPane({ pane }: TerminalPaneProps) {
         <div className="flex items-center flex-1 overflow-x-auto min-w-0">
           {group.tabs.map((tab) => {
             const isActive = tab.id === group.activeTabId
+            const isEditing = tab.id === editingTabId
             const display = computeDisplayTitle(tab)
+            const canClose = group.tabs.length > 1
             return (
-              <button
+              <TabContextMenu
                 key={tab.id}
-                draggable
-                onDragStart={(e) => handleDragStart(e, tab.id)}
-                onClick={() => setActiveTab(tab.id, pane)}
-                title={display}
-                className="flex items-center gap-1.5 h-full px-3 text-xs flex-shrink-0 transition-colors outline-none group cursor-grab active:cursor-grabbing"
-                style={{
-                  color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
-                  borderBottom: isActive
-                    ? '2px solid var(--color-accent)'
-                    : '2px solid transparent',
-                }}
+                pinned={tab.pinned}
+                canClose={canClose}
+                onRename={() => setEditingTabId(tab.id)}
+                onUnpin={() => useTerminalStore.getState().unpinTab(tab.id)}
+                onClose={() => closeTab(tab.id, pane)}
               >
-                <span className="max-w-[12rem] truncate">{display}</span>
-                {group.tabs.length > 1 && (
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      closeTab(tab.id, pane)
-                    }}
-                    className="flex items-center justify-center w-4 h-4 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/10 cursor-default"
-                  >
-                    <X size={10} />
-                  </span>
-                )}
-              </button>
+                <button
+                  draggable={!isEditing}
+                  onDragStart={isEditing ? undefined : (e) => handleDragStart(e, tab.id)}
+                  onClick={isEditing ? undefined : () => setActiveTab(tab.id, pane)}
+                  onDoubleClick={() => setEditingTabId(tab.id)}
+                  title={isEditing ? undefined : display}
+                  className={`flex items-center gap-1.5 h-full px-3 text-xs flex-shrink-0 transition-colors outline-none group ${
+                    isEditing ? 'cursor-text' : 'cursor-grab active:cursor-grabbing'
+                  }`}
+                  style={{
+                    color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
+                    borderBottom: isActive
+                      ? '2px solid var(--color-accent)'
+                      : '2px solid transparent',
+                  }}
+                >
+                  {isEditing ? (
+                    <TabInlineRenameInput
+                      defaultValue={display}
+                      onCommit={(title) => commitRename(tab.id, title)}
+                      onCancel={() => setEditingTabId(null)}
+                    />
+                  ) : (
+                    <span className="max-w-[12rem] truncate">{display}</span>
+                  )}
+                  {!isEditing && canClose && (
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        closeTab(tab.id, pane)
+                      }}
+                      className="flex items-center justify-center w-4 h-4 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/10 cursor-default"
+                    >
+                      <X size={10} />
+                    </span>
+                  )}
+                </button>
+              </TabContextMenu>
             )
           })}
         </div>

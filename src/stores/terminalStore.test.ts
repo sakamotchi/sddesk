@@ -12,6 +12,8 @@ function makeTab(fallbackTitle: string): TerminalTab {
     ptyId: null,
     fallbackTitle,
     oscTitle: null,
+    manualTitle: null,
+    pinned: false,
   }
 }
 
@@ -149,24 +151,49 @@ describe('sanitizeTitle', () => {
 })
 
 describe('computeDisplayTitle', () => {
+  const baseTab = (overrides: Partial<TerminalTab> = {}): TerminalTab => ({
+    id: '1',
+    ptyId: null,
+    fallbackTitle: 'Terminal 1',
+    oscTitle: null,
+    manualTitle: null,
+    pinned: false,
+    ...overrides,
+  })
+
   it('oscTitle が null のときは fallbackTitle を返す', () => {
-    const tab: TerminalTab = {
-      id: '1',
-      ptyId: null,
-      fallbackTitle: 'Terminal 1',
-      oscTitle: null,
-    }
-    expect(computeDisplayTitle(tab)).toBe('Terminal 1')
+    expect(computeDisplayTitle(baseTab())).toBe('Terminal 1')
   })
 
   it('oscTitle を優先して返す', () => {
-    const tab: TerminalTab = {
-      id: '1',
-      ptyId: 'p',
-      fallbackTitle: 'Terminal 1',
-      oscTitle: 'vim foo.ts',
-    }
-    expect(computeDisplayTitle(tab)).toBe('vim foo.ts')
+    expect(computeDisplayTitle(baseTab({ oscTitle: 'vim foo.ts' }))).toBe('vim foo.ts')
+  })
+
+  it('pinned + manualTitle が最優先される', () => {
+    expect(
+      computeDisplayTitle(
+        baseTab({ oscTitle: 'vim', manualTitle: 'watcher', pinned: true }),
+      ),
+    ).toBe('watcher')
+  })
+
+  it('pinned=false のときは manualTitle が無視され oscTitle が使われる', () => {
+    expect(
+      computeDisplayTitle(
+        baseTab({ oscTitle: 'vim', manualTitle: 'watcher', pinned: false }),
+      ),
+    ).toBe('vim')
+  })
+
+  it('pinned=true でも manualTitle が null なら oscTitle/fallbackTitle にフォールバック', () => {
+    expect(
+      computeDisplayTitle(
+        baseTab({ oscTitle: 'vim', manualTitle: null, pinned: true }),
+      ),
+    ).toBe('vim')
+    expect(
+      computeDisplayTitle(baseTab({ oscTitle: null, manualTitle: null, pinned: true })),
+    ).toBe('Terminal 1')
   })
 })
 
@@ -221,5 +248,93 @@ describe('setOscTitle', () => {
     useTerminalStore.getState().setOscTitle('pty-s', 'secondary-title')
     expect(useTerminalStore.getState().primary.tabs[0].oscTitle).toBeNull()
     expect(useTerminalStore.getState().secondary.tabs[0].oscTitle).toBe('secondary-title')
+  })
+})
+
+describe('renameTab', () => {
+  beforeEach(resetStore)
+
+  it('pinned=true / manualTitle=<trimmed> が設定される', () => {
+    const { primary } = useTerminalStore.getState()
+    useTerminalStore.getState().renameTab(primary.tabs[0].id, '  watcher  ')
+    const tab = useTerminalStore.getState().primary.tabs[0]
+    expect(tab.pinned).toBe(true)
+    expect(tab.manualTitle).toBe('watcher')
+  })
+
+  it('空文字では何も変更しない（呼び出し側で unpinTab に振り分ける想定）', () => {
+    const { primary } = useTerminalStore.getState()
+    useTerminalStore.getState().renameTab(primary.tabs[0].id, '   ')
+    const tab = useTerminalStore.getState().primary.tabs[0]
+    expect(tab.pinned).toBe(false)
+    expect(tab.manualTitle).toBeNull()
+  })
+
+  it('同一値の連続リネームでは state 参照が変化しない', () => {
+    const { primary } = useTerminalStore.getState()
+    const tabId = primary.tabs[0].id
+    useTerminalStore.getState().renameTab(tabId, 'watcher')
+    const stateA = useTerminalStore.getState()
+    useTerminalStore.getState().renameTab(tabId, 'watcher')
+    const stateB = useTerminalStore.getState()
+    expect(stateA.primary).toBe(stateB.primary)
+    expect(stateA.secondary).toBe(stateB.secondary)
+  })
+
+  it('未知の tabId では何も更新されない', () => {
+    useTerminalStore.getState().renameTab('unknown-id', 'x')
+    const { primary, secondary } = useTerminalStore.getState()
+    expect(primary.tabs.every((t) => !t.pinned && t.manualTitle === null)).toBe(true)
+    expect(secondary.tabs.every((t) => !t.pinned && t.manualTitle === null)).toBe(true)
+  })
+})
+
+describe('unpinTab', () => {
+  beforeEach(resetStore)
+
+  it('pinned=false / manualTitle=null に戻る', () => {
+    const { primary } = useTerminalStore.getState()
+    const tabId = primary.tabs[0].id
+    useTerminalStore.getState().renameTab(tabId, 'watcher')
+    useTerminalStore.getState().unpinTab(tabId)
+    const tab = useTerminalStore.getState().primary.tabs[0]
+    expect(tab.pinned).toBe(false)
+    expect(tab.manualTitle).toBeNull()
+  })
+
+  it('もともと unpin のタブでは state 参照が変化しない', () => {
+    const { primary } = useTerminalStore.getState()
+    const tabId = primary.tabs[0].id
+    const stateA = useTerminalStore.getState()
+    useTerminalStore.getState().unpinTab(tabId)
+    const stateB = useTerminalStore.getState()
+    expect(stateA.primary).toBe(stateB.primary)
+    expect(stateA.secondary).toBe(stateB.secondary)
+  })
+})
+
+describe('pinned と OSC 更新の共存', () => {
+  beforeEach(resetStore)
+
+  it('pinned タブへの OSC 更新は oscTitle に記録されるが表示は manualTitle が優先', () => {
+    const { primary } = useTerminalStore.getState()
+    const tabId = primary.tabs[0].id
+    useTerminalStore.getState().setPtyId(tabId, 'pty-0')
+    useTerminalStore.getState().renameTab(tabId, 'watcher')
+    useTerminalStore.getState().setOscTitle('pty-0', 'vim foo.ts')
+    const tab = useTerminalStore.getState().primary.tabs[0]
+    expect(tab.oscTitle).toBe('vim foo.ts')
+    expect(computeDisplayTitle(tab)).toBe('watcher')
+  })
+
+  it('unpin 後は最新の oscTitle が即時表示される', () => {
+    const { primary } = useTerminalStore.getState()
+    const tabId = primary.tabs[0].id
+    useTerminalStore.getState().setPtyId(tabId, 'pty-0')
+    useTerminalStore.getState().renameTab(tabId, 'watcher')
+    useTerminalStore.getState().setOscTitle('pty-0', 'vim foo.ts')
+    useTerminalStore.getState().unpinTab(tabId)
+    const tab = useTerminalStore.getState().primary.tabs[0]
+    expect(computeDisplayTitle(tab)).toBe('vim foo.ts')
   })
 })

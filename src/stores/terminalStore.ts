@@ -7,6 +7,10 @@ export interface TerminalTab {
   fallbackTitle: string
   /** OSC 0/1/2 で受信した最新タイトル。null = 未受信 or リセット */
   oscTitle: string | null
+  /** ユーザーが明示的にリネームした名前。null = 未設定 */
+  manualTitle: string | null
+  /** true のとき manualTitle を表示タイトルとして優先し OSC 更新を表示上無視する */
+  pinned: boolean
 }
 
 export interface TerminalGroup {
@@ -25,6 +29,8 @@ interface TerminalState {
   setActiveTab: (id: string, pane: 'primary' | 'secondary') => void
   setPtyId: (tabId: string, ptyId: string) => void
   setOscTitle: (ptyId: string, rawTitle: string | null) => void
+  renameTab: (tabId: string, title: string) => void
+  unpinTab: (tabId: string) => void
   moveTab: (tabId: string, fromPane: 'primary' | 'secondary', toPane: 'primary' | 'secondary') => void
   toggleSplit: () => void
   setFocusedPane: (pane: 'primary' | 'secondary') => void
@@ -39,6 +45,8 @@ const makeTab = (index: number): TerminalTab => ({
   ptyId: null,
   fallbackTitle: `Terminal ${index}`,
   oscTitle: null,
+  manualTitle: null,
+  pinned: false,
 })
 
 const makeGroup = (index = 1): TerminalGroup => {
@@ -60,10 +68,10 @@ export function sanitizeTitle(raw: string | null | undefined): string | null {
 
 /**
  * タブの表示タイトルを算出する。
- * P2 時点の優先順位: oscTitle > fallbackTitle
- * P3 以降で pinned / manualTitle を追加する際はここを拡張する。
+ * 優先順位: (pinned かつ manualTitle あり) > oscTitle > fallbackTitle
  */
 export function computeDisplayTitle(tab: TerminalTab): string {
+  if (tab.pinned && tab.manualTitle) return tab.manualTitle
   return tab.oscTitle ?? tab.fallbackTitle
 }
 
@@ -118,6 +126,44 @@ export const useTerminalStore = create<TerminalState>((set) => ({
           if (t.oscTitle === sanitized) return t
           changed = true
           return { ...t, oscTitle: sanitized }
+        })
+        return changed ? { ...g, tabs } : g
+      }
+      const primary = updateGroup(state.primary)
+      const secondary = updateGroup(state.secondary)
+      if (!changed) return state
+      return { primary, secondary }
+    }),
+
+  renameTab: (tabId, title) =>
+    set((state) => {
+      const trimmed = title.trim()
+      if (!trimmed) return state
+      let changed = false
+      const updateGroup = (g: TerminalGroup): TerminalGroup => {
+        const tabs = g.tabs.map((t) => {
+          if (t.id !== tabId) return t
+          if (t.pinned && t.manualTitle === trimmed) return t
+          changed = true
+          return { ...t, pinned: true, manualTitle: trimmed }
+        })
+        return changed ? { ...g, tabs } : g
+      }
+      const primary = updateGroup(state.primary)
+      const secondary = updateGroup(state.secondary)
+      if (!changed) return state
+      return { primary, secondary }
+    }),
+
+  unpinTab: (tabId) =>
+    set((state) => {
+      let changed = false
+      const updateGroup = (g: TerminalGroup): TerminalGroup => {
+        const tabs = g.tabs.map((t) => {
+          if (t.id !== tabId) return t
+          if (!t.pinned && t.manualTitle === null) return t
+          changed = true
+          return { ...t, pinned: false, manualTitle: null }
         })
         return changed ? { ...g, tabs } : g
       }
