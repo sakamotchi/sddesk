@@ -241,7 +241,9 @@ export function TerminalRenderer({ ptyId, fontFamily, fontSize, theme }: Termina
         ctx.font = fontStr
         ctx.globalAlpha = cell.flags.dim ? 0.5 : 1.0
         ctx.fillStyle = fg
-        ctx.fillText(cell.ch, x, y + ch / 2)
+        // maxWidth にセル幅を渡すことで、ambiguous-width 文字（丸数字など）が
+        // フォント本来の全角字形幅で隣セルへはみ出すのを防ぐ
+        ctx.fillText(cell.ch, x, y + ch / 2, w)
         ctx.globalAlpha = 1.0
       }
 
