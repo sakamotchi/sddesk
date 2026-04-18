@@ -7,7 +7,7 @@ export const EXT_TO_LANG: Record<string, BuiltinLanguage> = {
   rs: 'rust', py: 'python', go: 'go', java: 'java',
   c: 'c', cpp: 'cpp', h: 'c', cs: 'csharp', rb: 'ruby',
   php: 'php', swift: 'swift', kt: 'kotlin',
-  json: 'json', toml: 'toml', yaml: 'yaml', yml: 'yaml',
+  json: 'json', jsonc: 'jsonc', json5: 'json5', toml: 'toml', yaml: 'yaml', yml: 'yaml',
   css: 'css', scss: 'scss', html: 'html', xml: 'xml', sql: 'sql',
   sh: 'bash', bash: 'bash', zsh: 'bash', fish: 'fish', ps1: 'powershell',
 }
