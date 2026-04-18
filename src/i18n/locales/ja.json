@@ -93,7 +93,11 @@
       "newline": "Enter: 改行",
       "submit": "⌘Enter: 送信",
       "submitCtrl": "Ctrl+Enter: 送信",
-      "cancel": "Esc: 閉じる"
+      "cancel": "Esc: 閉じる",
+      "historyUp": "↑ で直近を呼び出し",
+      "historyDown": "↓ で戻る",
+      "historyOpen": "⌘H で履歴一覧",
+      "templateOpen": "⌘T でテンプレート一覧"
     },
     "button": {
       "submit": "送信",
@@ -101,6 +105,32 @@
     },
     "menu": {
       "openPalette": "プロンプトを編集..."
+    },
+    "history": {
+      "title": "履歴",
+      "empty": "送信履歴はまだありません",
+      "searchPlaceholder": "履歴を検索",
+      "saveAsTemplate": "テンプレートとして保存",
+      "ariaLabel": "送信履歴一覧",
+      "openHint": "履歴を開く"
+    },
+    "template": {
+      "title": "テンプレート",
+      "empty": "テンプレートはまだ登録されていません",
+      "searchPlaceholder": "テンプレートを検索",
+      "new": "新規作成",
+      "edit": "編集",
+      "delete": "削除",
+      "ariaLabel": "テンプレート一覧",
+      "openHint": "テンプレートを開く",
+      "editor": {
+        "title": "テンプレート編集",
+        "name": "名前",
+        "body": "本文",
+        "save": "保存",
+        "cancel": "キャンセル",
+        "deleteConfirm": "このテンプレートを削除しますか？"
+      }
     },
     "error": {
       "sendFailed": "プロンプトの送信に失敗しました: {{message}}"

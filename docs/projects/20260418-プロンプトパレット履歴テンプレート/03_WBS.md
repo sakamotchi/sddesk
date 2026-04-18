@@ -17,32 +17,32 @@
 
 ### Phase 1: 基盤整備
 
-- [ ] **T1-1**: `promptPaletteStore` のスキーマ拡張
+- [x] **T1-1**: `promptPaletteStore` のスキーマ拡張
   - 内容: `history` / `templates` / `historyCursor` / `dropdown` / `editorState` 型とアクション（`pushHistory`, `setHistoryCursor`, `openDropdown`, `closeDropdown`, `upsertTemplate`, `removeTemplate`, `openEditor`, `closeEditor`）を追加
   - 成果物: `src/stores/promptPaletteStore.ts`
   - 依存: なし
   - 規模: M
 
-- [ ] **T1-2**: `persist` middleware 適用
-  - 内容: `appStore.ts` のパターンで `createJSONStorage(() => localStorage)` をラップ、`partialize` で `history` / `templates` のみ永続化、`version: 1` と空の `migrate` を定義
+- [x] **T1-2**: `persist` middleware 適用
+  - 内容: `appStore.ts` のパターンで `createJSONStorage(() => localStorage)` をラップ、`partialize` で `history` / `templates` のみ永続化、`version: 1` を設定
   - 成果物: `src/stores/promptPaletteStore.ts`
   - 依存: T1-1
   - 規模: S
 
-- [ ] **T1-3**: ストアテスト拡張
-  - 内容: `pushHistory` の重複排除・100 件上限、`historyCursor` 境界、`upsertTemplate` / `removeTemplate`
+- [x] **T1-3**: ストアテスト拡張
+  - 内容: `pushHistory` の重複排除・100 件上限、`historyCursor` 境界、`upsertTemplate` / `removeTemplate`、persist の partialize 検証（24 件追加）
   - 成果物: `src/stores/promptPaletteStore.test.ts`
   - 依存: T1-1
   - 規模: M
 
-- [ ] **T1-4**: プレースホルダユーティリティ
-  - 内容: `{{...}}` のパース、位置リスト計算、選択範囲 API への変換
+- [x] **T1-4**: プレースホルダユーティリティ
+  - 内容: `{{...}}` のパース、位置リスト計算、次位置検索（11 件テスト）
   - 成果物: `src/lib/templatePlaceholders.ts` + `.test.ts`
   - 依存: なし
   - 規模: M
 
-- [ ] **T1-5**: i18n キー雛形追加
-  - 内容: `promptPalette.history.*`、`promptPalette.template.*`、`promptPalette.hint.*` 追加分を ja / en 両方に定義。空でも構造だけ確定させる
+- [x] **T1-5**: i18n キー雛形追加
+  - 内容: `promptPalette.history.*`、`promptPalette.template.*`、`promptPalette.hint.*` 追加分を ja / en 両方に定義
   - 成果物: `src/i18n/locales/ja.json`, `src/i18n/locales/en.json`
   - 依存: なし
   - 規模: S
@@ -222,7 +222,7 @@ flowchart TB
 
 ## 6. マイルストーン
 
-- [ ] **M1**: Phase 1 完了 — ストア・永続化・ユーティリティが単体でグリーン。既存パレット挙動に変化なし
+- [x] **M1**: Phase 1 完了 — ストア・永続化・ユーティリティが単体でグリーン。既存パレット挙動に変化なし
 - [ ] **M2**: Phase 2 完了 — 「F4 → `↑` → `Cmd+Enter`」で直近プロンプト再送できる。履歴ドロップダウンから流し込みできる
 - [ ] **M3**: Phase 3 完了 — テンプレ新規作成・選択・プレースホルダ Tab 遷移まで動作。`/` サジェストが動作
 - [ ] **M4**: リリース可能 — 全テストグリーン、手動シナリオ完了、steering 更新済み、バージョンタグ付与準備
