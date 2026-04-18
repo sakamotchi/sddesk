@@ -101,6 +101,9 @@
     },
     "menu": {
       "openPalette": "プロンプトを編集..."
+    },
+    "error": {
+      "sendFailed": "プロンプトの送信に失敗しました: {{message}}"
     }
   },
   "shortcuts": {

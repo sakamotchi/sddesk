@@ -37,6 +37,15 @@ export function AppLayout() {
         if (target.classList.contains('xterm-helper-textarea')) return
       }
 
+      // プロンプト編集パレット表示中は、allow list のキー以外を握り潰す。
+      // allow list: Ctrl+P（パス検索）/ Cmd+Shift+P / Ctrl+Shift+P（プロンプトパレット）
+      if (usePromptPaletteStore.getState().isOpen) {
+        const isCtrlP = ctrl && !meta && !shift && key === 'p'
+        const isPromptPaletteKey =
+          (meta || ctrl) && shift && (key === 'p' || key === 'P')
+        if (!isCtrlP && !isPromptPaletteKey) return
+      }
+
       // ? → ショートカット一覧を開く/閉じる
       if (key === '?' && !meta && !ctrl) {
         setShortcutsOpen((v) => !v)

@@ -5,6 +5,7 @@ import { PromptPalette } from './PromptPalette'
 import { usePromptPaletteStore } from '../../stores/promptPaletteStore'
 
 const writePtyMock = vi.fn<(id: string, data: string) => Promise<void>>()
+const toastErrorMock = vi.fn<(message: string) => void>()
 
 vi.mock('../../lib/tauriApi', () => ({
   tauriApi: {
@@ -12,8 +13,19 @@ vi.mock('../../lib/tauriApi', () => ({
   },
 }))
 
+vi.mock('../Toast', () => ({
+  toast: {
+    error: (message: string) => toastErrorMock(message),
+    success: vi.fn(),
+    info: vi.fn(),
+  },
+}))
+
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string, opts?: Record<string, unknown>) =>
+      opts ? `${key}:${JSON.stringify(opts)}` : key,
+  }),
   initReactI18next: { type: '3rdParty', init: vi.fn() },
 }))
 
@@ -32,6 +44,7 @@ describe('PromptPalette', () => {
     resetStore()
     writePtyMock.mockReset()
     writePtyMock.mockResolvedValue(undefined)
+    toastErrorMock.mockReset()
   })
 
   it('閉じているときは textarea を描画しない', () => {
@@ -173,5 +186,72 @@ describe('PromptPalette', () => {
     const ta = (await screen.findByRole('textbox')) as HTMLTextAreaElement
     fireEvent.change(ta, { target: { value: 'draft text' } })
     expect(usePromptPaletteStore.getState().drafts['pty-1']).toBe('draft text')
+  })
+
+  it('compositionstart 中の Cmd+Enter は送信しない（IME state ガード）', async () => {
+    act(() => {
+      usePromptPaletteStore.setState({
+        isOpen: true,
+        targetPtyId: 'pty-1',
+        targetTabName: 'zsh',
+        drafts: { 'pty-1': 'hello' },
+      })
+    })
+    render(<PromptPalette />)
+    const ta = (await screen.findByRole('textbox')) as HTMLTextAreaElement
+    fireEvent.compositionStart(ta)
+    await act(async () => {
+      fireEvent.keyDown(ta, { key: 'Enter', metaKey: true })
+      await Promise.resolve()
+    })
+    expect(writePtyMock).not.toHaveBeenCalled()
+  })
+
+  it('compositionend 後の Cmd+Enter は通常送信される（IME state 解除確認）', async () => {
+    act(() => {
+      usePromptPaletteStore.setState({
+        isOpen: true,
+        targetPtyId: 'pty-1',
+        targetTabName: 'zsh',
+        drafts: { 'pty-1': 'hello' },
+      })
+    })
+    render(<PromptPalette />)
+    const ta = (await screen.findByRole('textbox')) as HTMLTextAreaElement
+    fireEvent.compositionStart(ta)
+    fireEvent.compositionEnd(ta)
+    await act(async () => {
+      fireEvent.keyDown(ta, { key: 'Enter', metaKey: true })
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+    expect(writePtyMock).toHaveBeenCalledWith('pty-1', 'hello\n')
+  })
+
+  it('writePty が reject した場合、toast.error が呼ばれパレットと本文を維持する', async () => {
+    writePtyMock.mockRejectedValueOnce(new Error('PTY not found'))
+    act(() => {
+      usePromptPaletteStore.setState({
+        isOpen: true,
+        targetPtyId: 'pty-1',
+        targetTabName: 'zsh',
+        drafts: { 'pty-1': 'echo hi' },
+      })
+    })
+    render(<PromptPalette />)
+    const ta = (await screen.findByRole('textbox')) as HTMLTextAreaElement
+    await act(async () => {
+      fireEvent.keyDown(ta, { key: 'Enter', metaKey: true })
+      // rejected Promise の microtask を 2 回消化
+      await Promise.resolve()
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+    expect(toastErrorMock).toHaveBeenCalledTimes(1)
+    expect(toastErrorMock.mock.calls[0][0]).toContain('promptPalette.error.sendFailed')
+    expect(toastErrorMock.mock.calls[0][0]).toContain('PTY not found')
+    const state = usePromptPaletteStore.getState()
+    expect(state.isOpen).toBe(true)
+    expect(state.drafts['pty-1']).toBe('echo hi')
   })
 })

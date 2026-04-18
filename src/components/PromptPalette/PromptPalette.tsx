@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { useTranslation } from 'react-i18next'
 import { usePromptPaletteStore } from '../../stores/promptPaletteStore'
 import { tauriApi } from '../../lib/tauriApi'
+import { toast } from '../Toast'
 
 const IS_MAC =
   typeof navigator !== 'undefined' && /Mac|iP(hone|od|ad)/.test(navigator.platform)
@@ -17,6 +18,10 @@ export function PromptPalette() {
   )
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // IME 変換中は Enter / Cmd+Enter を送信扱いにしない。
+  // e.nativeEvent.isComposing と state の OR で二重ガード（ブラウザ差異対策）。
+  const [isComposing, setIsComposing] = useState(false)
 
   // textarea ref を store に登録（パス挿入ディスパッチのパレット分岐で使用）
   useEffect(() => {
@@ -46,9 +51,11 @@ export function PromptPalette() {
       state.close()
       window.dispatchEvent(new CustomEvent('terminal:focus'))
     } catch (err) {
-      console.error('Failed to send prompt:', err)
+      const message = err instanceof Error ? err.message : String(err)
+      toast.error(t('promptPalette.error.sendFailed', { message }))
+      // 失敗時はパレットと本文を維持し、ユーザーが再送信できるようにする
     }
-  }, [])
+  }, [t])
 
   const handleCancel = useCallback(() => {
     usePromptPaletteStore.getState().close()
@@ -62,6 +69,7 @@ export function PromptPalette() {
         (e.metaKey || e.ctrlKey) &&
         !e.shiftKey &&
         !e.altKey &&
+        !isComposing &&
         !e.nativeEvent.isComposing
       ) {
         e.preventDefault()
@@ -69,7 +77,7 @@ export function PromptPalette() {
         void handleSubmit()
       }
     },
-    [handleSubmit],
+    [handleSubmit, isComposing],
   )
 
   const canSubmit = draft.trim().length > 0
@@ -170,6 +178,8 @@ export function PromptPalette() {
               value={draft}
               onChange={handleChange}
               onKeyDown={handleKeyDown}
+              onCompositionStart={() => setIsComposing(true)}
+              onCompositionEnd={() => setIsComposing(false)}
               placeholder={t('promptPalette.placeholder')}
               rows={8}
               spellCheck={false}

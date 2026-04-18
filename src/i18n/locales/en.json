@@ -101,6 +101,9 @@
     },
     "menu": {
       "openPalette": "Edit Prompt..."
+    },
+    "error": {
+      "sendFailed": "Failed to send prompt: {{message}}"
     }
   },
   "shortcuts": {
