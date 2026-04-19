@@ -87,7 +87,7 @@ EOF
 
 **確認結果:**
 
-- [ ] OK / NG
+- [x] OK
 
 ---
 
@@ -105,7 +105,7 @@ EOF
 
 **確認結果:**
 
-- [ ] OK / NG
+- [x] OK
 
 ---
 
@@ -122,7 +122,7 @@ EOF
 
 **確認結果:**
 
-- [ ] OK / NG
+- [x] OK
 
 ---
 
@@ -138,7 +138,7 @@ EOF
 
 **確認結果:**
 
-- [ ] OK / NG
+- [x] OK
 
 ---
 
@@ -156,7 +156,7 @@ EOF
 
 **確認結果:**
 
-- [ ] OK / NG
+- [x] OK
 
 ---
 
@@ -175,7 +175,7 @@ EOF
 
 **確認結果:**
 
-- [ ] OK / NG
+- [x] OK
 
 ---
 
@@ -192,7 +192,7 @@ EOF
 
 **確認結果:**
 
-- [ ] OK / NG
+- [x] OK
 
 ---
 
@@ -210,7 +210,7 @@ EOF
 
 **確認結果:**
 
-- [ ] OK / NG
+- [x] OK
 
 ---
 
@@ -229,7 +229,7 @@ EOF
 
 **確認結果:**
 
-- [ ] OK / NG
+- [x] OK
 
 ---
 
@@ -247,7 +247,7 @@ EOF
 
 **確認結果:**
 
-- [ ] OK / NG
+- [x] OK
 
 ---
 
@@ -311,12 +311,12 @@ cd src-tauri && cargo check
 
 | ケース | 期待動作 | 確認結果 |
 |--------|---------|---------|
-| SKILL.md に frontmatter 自体がない | 無視（Phase B では frontmatter 必須と見なす） | [ ] OK / NG |
-| SKILL.md の frontmatter に `name` のみ | description 非表示で `name` のみ表示 | [ ] OK / NG |
-| スキル ディレクトリに `SKILL.md` でなく `skill.md` しかない | 無視（ファイル名は大文字固定） | [ ] OK / NG |
-| SKILL.md 以外のファイルが同居 | 無視（SKILL.md 以外は読まない） | [ ] OK / NG |
-| プロジェクトルート未解決（activeProjectPath が undefined） | ユーザー Skill のみ返る | [ ] OK / NG |
-| ネストした skills（`~/.claude/skills/foo/bar/SKILL.md`） | 無視（直下 1 階層のみスキャン） | [ ] OK / NG |
+| SKILL.md に frontmatter 自体がない | 無視（Phase B では frontmatter 必須と見なす） | [x] OK |
+| SKILL.md の frontmatter に `name` のみ | description 非表示で `name` のみ表示 | [x] OK |
+| スキル ディレクトリに `SKILL.md` でなく `skill.md` しかない | 無視（ファイル名は大文字固定） | [x] OK |
+| SKILL.md 以外のファイルが同居 | 無視（SKILL.md 以外は読まない） | [x] OK |
+| プロジェクトルート未解決（activeProjectPath が undefined） | ユーザー Skill のみ返る | [x] OK |
+| ネストした skills（`~/.claude/skills/foo/bar/SKILL.md`） | 無視（直下 1 階層のみスキャン） | [x] OK |
 
 ---
 
@@ -324,14 +324,14 @@ cd src-tauri && cargo check
 
 既存機能への影響がないことを確認します。
 
-- [ ] Phase A の体験が維持される（`Claude Code` セクション・`Templates` セクションが従来通り）
-- [ ] Tab キー確定・スクロール追従（PE-47 / PE-48）が正常動作
-- [ ] ファイルツリー・ターミナル・コンテンツビューアに影響なし
-- [ ] プロンプト履歴・テンプレート編集（v1.1）が従来通り動作
-- [ ] パス挿入（`Cmd+Click` / 右クリック / `Ctrl+P`）がパレット開時 textarea に挿入される
-- [ ] `⌘Enter` 送信・履歴追加が従来通り
-- [ ] Esc でパレット閉じる挙動
-- [ ] ステータスバーの Git ブランチ・ファイル種別表示
+- [x] Phase A の体験が維持される（`Claude Code` セクション・`Templates` セクションが従来通り）
+- [x] Tab キー確定・スクロール追従（PE-47 / PE-48）が正常動作
+- [x] ファイルツリー・ターミナル・コンテンツビューアに影響なし
+- [x] プロンプト履歴・テンプレート編集（v1.1）が従来通り動作
+- [x] パス挿入（`Cmd+Click` / 右クリック / `Ctrl+P`）がパレット開時 textarea に挿入される
+- [x] `⌘Enter` 送信・履歴追加が従来通り
+- [x] Esc でパレット閉じる挙動
+- [x] ステータスバーの Git ブランチ・ファイル種別表示
 
 ## 後片付け
 

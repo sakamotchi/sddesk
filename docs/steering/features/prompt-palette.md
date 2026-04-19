@@ -1,6 +1,6 @@
 # プロンプト編集パレット機能仕様書
 
-**バージョン**: 1.2
+**バージョン**: 1.3
 **作成日**: 2026年4月18日
 **最終更新**: 2026年4月19日
 
@@ -12,7 +12,9 @@
 
 v1.1 で **プロンプト履歴**（送信時に自動蓄積、`↑`/`↓` 巡回・`⌘H` ドロップダウン）と **プロンプトテンプレート**（`{{placeholder}}` 対応の再利用プロンプト、`⌘T` ドロップダウン・`/` インラインサジェスト・エディタ）を追加しました。
 
-v1.2 で **Claude Code スラッシュコマンドサジェスト** を追加しました。Phase A として Claude Code の組み込みコマンド（`/resume` `/clear` 等）とバンドル Skill（`/debug` `/simplify` 等）を `SlashSuggest` の候補に静的リストとして統合し、`Claude Code` / `Templates` のセクション見出し＋バッジ（`CMD` / `TPL`）で混在表示します。合わせて、textarea にフォーカスがある状態でも `↑`/`↓`/`Enter`/`Tab` でサジェストを操作できるよう委譲経路を整備し、候補リストが長くなっても親ウィンドウ下端で切れないようオーバーフロー抑止を追加しました。Phase B（`~/.claude/skills/` / プロジェクト `.claude/skills/` のファイルスキャン）は次段階で実装予定。
+v1.2 で **Claude Code スラッシュコマンドサジェスト** を追加しました。Phase A として Claude Code の組み込みコマンド（`/resume` `/clear` 等）とバンドル Skill（`/debug` `/simplify` 等）を `SlashSuggest` の候補に静的リストとして統合し、`Claude Code` / `Templates` のセクション見出し＋バッジ（`CMD` / `TPL`）で混在表示します。合わせて、textarea にフォーカスがある状態でも `↑`/`↓`/`Enter`/`Tab` でサジェストを操作できるよう委譲経路を整備し、候補リストが長くなっても親ウィンドウ下端で切れないようオーバーフロー抑止を追加しました。
+
+v1.3 で **Phase B** を実装し、ユーザー Skill（`~/.claude/skills/<name>/SKILL.md`）とプロジェクト Skill（`<projectRoot>/.claude/skills/<name>/SKILL.md`）のファイルスキャン結果をサジェスト候補に追加しました。Rust の `list_claude_skills` コマンドが `SKILL.md` の YAML frontmatter をパースし、`user-invocable: false` のスキルは除外、同名衝突はユーザー側優先で解決します。フロントエンドはパレット初回オープン時に非同期ロードし、runtime キャッシュするため 2 回目以降の開閉は IPC を呼び出しません。プラグイン Skill（`/plugin-name:name`）と MCP プロンプトはスコープ外です。
 
 **機能ID**: FR-15
 
@@ -109,9 +111,11 @@ v1.2 で **Claude Code スラッシュコマンドサジェスト** を追加し
 | 要件ID | 要件 | 詳細 |
 |--------|------|------|
 | PE-45 | グローバル `⌘T` 衝突回避 | パレット閉中は `AppLayout` のグローバル `⌘T`（新規ターミナルタブ）として動作。パレット開中は `AppLayout:43-48` の allow-list 早期 return により抑制され、パレット内の `⌘T` が有効 |
-| PE-46 | Claude Code スラッシュコマンド（Phase A 実装済み / v1.2） | `SlashSuggest` の候補を判別共用体 `SlashSuggestItem = { kind: 'template' \| 'builtin' \| 'user-skill' \| 'project-skill' }` で表現し、セクション（`Claude Code` / `User Skills` / `Project Skills` / `Templates`）＋バッジ（`CMD` / `USER` / `PROJ` / `TPL`）で混在表示する。Phase A は `builtin`（組み込みコマンド + バンドル Skill 静的リスト `src/lib/builtInCommands.ts`）と既存 `template` を実装。`user-skill` / `project-skill` は Phase B で `~/.claude/skills/` / `<projectRoot>/.claude/skills/` のファイルスキャンにて有効化予定。プラグイン Skill と MCP プロンプトは恒久スコープ外 |
+| PE-46 | Claude Code スラッシュコマンド（Phase A + B 実装済み / v1.2 + v1.3） | `SlashSuggest` の候補を判別共用体 `SlashSuggestItem = { kind: 'template' \| 'builtin' \| 'user-skill' \| 'project-skill' }` で表現し、セクション（`Claude Code` / `User Skills` / `Project Skills` / `Templates`）＋バッジ（`CMD` / `USER` / `PROJ` / `TPL`）で混在表示する。Phase A で `builtin`（組み込みコマンド + バンドル Skill 静的リスト `src/lib/builtInCommands.ts`）と既存 `template` を実装。Phase B で `user-skill`（`~/.claude/skills/<name>/SKILL.md`）・`project-skill`（`<projectRoot>/.claude/skills/<name>/SKILL.md`）を Rust `list_claude_skills` + `serde_yaml` frontmatter パースで有効化。`user-invocable: false` は除外、同名衝突はユーザー側優先。プラグイン Skill（`/plugin-name:name`）と MCP プロンプトは恒久スコープ外 |
 | PE-47 | SlashSuggest のキー委譲（v1.2） | textarea にフォーカスがある状態でも `↑`/`↓`/`Enter`/`Tab` がサジェストに届くよう、`SlashSuggest` を `forwardRef` 化し `SlashSuggestHandle.handleKeyDown` を `useImperativeHandle` で公開。`PromptPalette.handleKeyDown` がスラッシュアクティブ時に最優先で委譲する。`Tab`（Shift 有無不問）は `activeIndex` の候補を確定（Enter と同等）。`Cmd+Enter` / `Ctrl+Enter` は SlashSuggest で非消費のまま送信ハンドラへ委譲 |
 | PE-48 | SlashSuggest のオーバーフロー抑止（v1.2） | 候補リストに `max-height: 40vh` + `overflow-y: auto` を付与。`activeIndex` 変更時は該当行を `scrollIntoView({ block: 'nearest' })` で可視範囲へ追従。`~/.claude/skills/` 側の Skill が増えた将来でも親ウィンドウ下端で切れない |
+| PE-49 | Skill ファイルスキャン（v1.3） | Rust `list_claude_skills(project_root?)` が `~/.claude/skills/<name>/SKILL.md` と `<projectRoot>/.claude/skills/<name>/SKILL.md` を列挙し、`serde_yaml` で frontmatter（`name` / `description` / `argument-hint` / `user-invocable`）をパースして `SkillMetadata[]` を返す。`~` は `dirs::home_dir()` で OS 非依存に展開。パース失敗・`user-invocable: false` のエントリは除外 |
+| PE-50 | Skill runtime キャッシュ（v1.3） | `promptPaletteStore.skills` / `skillsLoadedAt` を追加（`partialize` で永続化対象外）。`PromptPalette` の `useEffect` で `isOpen && skillsLoadedAt === null` のときのみ `loadSkills(projectRoot)` を 1 回だけ呼ぶ。2 回目以降のオープンはキャッシュヒットで即表示。IPC 失敗時は `skillsLoadedAt` を `null` に戻さず再試行可能 |
 
 ---
 
@@ -135,8 +139,9 @@ v1.2 で **Claude Code スラッシュコマンドサジェスト** を追加し
 - `src/lib/templateValidation.ts` — テンプレ name/body の純関数バリデーション（v1.1）
 - `src/lib/templateApply.ts` — `applyTemplateBodyToDraft`（流し込み + プレースホルダ選択状態化、v1.1）・`insertInlineCommand`（`/<name> ` の挿入、v1.2）
 - `src/lib/slashQuery.ts` — `parseSlashQuery`（v1.1）
-- `src/lib/slashSuggestItem.ts` — `SlashSuggestItem` 判別共用体型と `getSlashSuggestCandidates`（セクション合成関数、v1.2）
+- `src/lib/slashSuggestItem.ts` — `SlashSuggestItem` 判別共用体型・`SkillMetadata` 型・`getSlashSuggestCandidates`（セクション合成関数、v1.2 / v1.3 で `kind: 'user' | 'project'` 追加）
 - `src/lib/builtInCommands.ts` — Claude Code 組み込みコマンド + バンドル Skill の静的リスト（v1.2）
+- `src/lib/tauriApi.ts` — `listSkills(projectRoot?)` wrapper（v1.3）
 
 **ストア**: `src/stores/promptPaletteStore.ts`
 
@@ -249,3 +254,4 @@ const insertPath = (paths) => {
 | 2026-04-18 | 1.0 | 初版作成（F1 MVP + F2 パス挿入ディスパッチ + F3 体験仕上げ + F4 UX 向上を一括反映） | - |
 | 2026-04-19 | 1.1 | 履歴機能（PE-29〜PE-36）・テンプレート機能（PE-37〜PE-44）・`⌘T` 衝突回避（PE-45〜PE-46）を追加 | - |
 | 2026-04-19 | 1.2 | Claude Code スラッシュコマンドサジェスト統合の Phase A を実装（PE-46 具体化）、SlashSuggest のキー委譲（PE-47）と候補リストのオーバーフロー抑止（PE-48）を追加 | - |
+| 2026-04-19 | 1.3 | Claude Code スラッシュコマンドサジェスト統合の Phase B を実装。Rust `list_claude_skills` によるユーザー / プロジェクト Skill のファイルスキャン（PE-49）と runtime キャッシュ（PE-50）を追加 | - |
