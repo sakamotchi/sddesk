@@ -89,7 +89,7 @@ pub fn git_branch(cwd: String) -> Result<Option<String>, String> {
 
 ### Tauriイベント
 
-Phase 1 では追加しない（Phase 2 で `.git/HEAD` 監視に `fs-changed` を利用予定）。
+Phase 1 では追加しない（Phase 2 でも Tauri イベントは追加せず、フロント側のポーリングのみで完結する方針）。
 
 ## UI設計
 

@@ -72,7 +72,7 @@ Phase 1 のゴール:
 ### 対象外
 
 - ブランチ名の実表示・自動更新ロジック（Phase 2）
-- `.git/HEAD` のファイル監視（Phase 2）
+- ブランチ名のリアルタイム更新（Phase 2 で 3 秒間隔ポーリングにて実装）
 - ファイル種別の表示（Phase 2）
 - ブランチ表示のクリック動作、ahead/behind、変更ファイル数表示（プロジェクトスコープ外）
 
@@ -92,7 +92,7 @@ Phase 1 のゴール:
 ## 既知の制約
 
 - `git_branch` は `std::process::Command` で外部 `git` を呼ぶため、Git 未インストール環境では `None` を返す仕様にする。代替実装（`git2` クレート使用）は Phase 2 以降で必要があれば検討する。
-- Tauri v2 capability `fs:read-all` が既に付与済みである前提（`.git/HEAD` 監視は Phase 2 で使用）。
+- Tauri v2 capability `fs:read-all` が既に付与済みである前提（`git_branch` の Rust 側実行に使用）。
 
 ## 参考資料
 
