@@ -21,7 +21,7 @@ export type PromptTemplate = {
 export type DropdownKind = 'none' | 'history' | 'template'
 
 export type PaletteEditorState =
-  | { mode: 'create' }
+  | { mode: 'create'; initialBody?: string }
   | { mode: 'edit'; templateId: string }
   | null
 

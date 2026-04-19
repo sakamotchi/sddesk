@@ -129,7 +129,14 @@
         "body": "Body",
         "save": "Save",
         "cancel": "Cancel",
-        "deleteConfirm": "Delete this template?"
+        "deleteConfirm": "Delete this template?",
+        "error": {
+          "nameEmpty": "Name is required",
+          "nameTooLong": "Name must be 255 characters or fewer",
+          "nameDuplicate": "A template with the same name already exists",
+          "bodyEmpty": "Body is required",
+          "bodyTooLong": "Body must be 10,000 characters or fewer"
+        }
       }
     },
     "error": {
@@ -159,6 +166,7 @@
       "pathPalette": "Path Search Palette",
       "promptPalette": "Prompt Edit Palette",
       "promptHistory": "In palette: Open prompt history",
+      "promptTemplate": "In palette: Open prompt templates",
       "shortcutList": "Shortcut List"
     }
   },

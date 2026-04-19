@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Search } from 'lucide-react'
+import { FilePlus, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
   usePromptPaletteStore,
@@ -179,38 +179,61 @@ export function PromptHistoryDropdown({ onAfterSelect }: PromptHistoryDropdownPr
             {t('promptPalette.history.empty')}
           </div>
         ) : (
-          filtered.map((entry, i) => (
-            <div
-              key={entry.id}
-              role="option"
-              aria-selected={i === activeIndex}
-              onClick={() => handleSelect(entry)}
-              onMouseEnter={() => setActiveIndex(i)}
-              className="flex items-center justify-between gap-3 px-3 h-8 cursor-pointer text-xs"
-              style={{
-                background: i === activeIndex ? 'var(--color-accent)' : 'transparent',
-                color: i === activeIndex ? '#fff' : 'var(--color-text-primary)',
-              }}
-            >
-              <span
-                className="truncate font-mono"
-                style={{ minWidth: 0, flex: 1 }}
-              >
-                {preview(entry.body)}
-              </span>
-              <span
-                className="flex-shrink-0 text-[10px]"
+          filtered.map((entry, i) => {
+            const isActive = i === activeIndex
+            return (
+              <div
+                key={entry.id}
+                role="option"
+                aria-selected={isActive}
+                onClick={() => handleSelect(entry)}
+                onMouseEnter={() => setActiveIndex(i)}
+                className="flex items-center justify-between gap-3 px-3 h-8 cursor-pointer text-xs"
                 style={{
-                  color:
-                    i === activeIndex
-                      ? 'rgba(255,255,255,0.8)'
-                      : 'var(--color-text-muted)',
+                  background: isActive ? 'var(--color-accent)' : 'transparent',
+                  color: isActive ? '#fff' : 'var(--color-text-primary)',
                 }}
               >
-                {relativeTime(entry.createdAt)}
-              </span>
-            </div>
-          ))
+                <span
+                  className="truncate font-mono"
+                  style={{ minWidth: 0, flex: 1 }}
+                >
+                  {preview(entry.body)}
+                </span>
+                <span
+                  className="flex-shrink-0 text-[10px]"
+                  style={{
+                    color: isActive
+                      ? 'rgba(255,255,255,0.8)'
+                      : 'var(--color-text-muted)',
+                  }}
+                >
+                  {relativeTime(entry.createdAt)}
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    const state = usePromptPaletteStore.getState()
+                    state.closeDropdown()
+                    state.openEditor({
+                      mode: 'create',
+                      initialBody: entry.body,
+                    })
+                  }}
+                  aria-label={t('promptPalette.history.saveAsTemplate')}
+                  title={t('promptPalette.history.saveAsTemplate')}
+                  className="flex items-center justify-center w-6 h-6 rounded flex-shrink-0"
+                  style={{
+                    color: isActive ? '#fff' : 'var(--color-text-muted)',
+                    opacity: isActive ? 1 : 0.5,
+                  }}
+                >
+                  <FilePlus size={12} />
+                </button>
+              </div>
+            )
+          })
         )}
       </div>
     </div>

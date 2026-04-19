@@ -81,39 +81,39 @@
 
 ### Phase 3: テンプレート機能
 
-- [ ] **T3-1**: テンプレドロップダウン実装
-  - 内容: `PromptTemplateDropdown`（検索・一覧・選択・新規/編集/削除導線）
-  - 成果物: `src/components/PromptPalette/PromptTemplateDropdown.tsx` + `.test.tsx`
+- [x] **T3-1**: テンプレドロップダウン実装
+  - 内容: `PromptTemplateDropdown`（検索・一覧・選択・新規/編集/削除導線、行内 Edit/Delete アイコン、AlertDialog 削除確認、新規作成ボタン）
+  - 成果物: `src/components/PromptPalette/PromptTemplateDropdown.tsx` + `.test.tsx`（11 テスト）
   - 依存: T1-1, T1-5, T1-4
   - 規模: L
 
-- [ ] **T3-2**: 流し込み時のプレースホルダ選択状態化
-  - 内容: `templatePlaceholders` の位置情報で textarea の最初のプレースホルダを `setSelectionRange` で選択
-  - 成果物: `PromptTemplateDropdown.tsx` / `PromptPalette.tsx`
+- [x] **T3-2**: 流し込み時のプレースホルダ選択状態化
+  - 内容: `templatePlaceholders` の位置情報で textarea の最初のプレースホルダを `setSelectionRange` で選択。共通関数 `applyTemplateBodyToDraft` を `src/lib/templateApply.ts` に新設し、ツリー `⌘+Click` / 右クリック / `⌘P` パスパレットからの置換も既存 `insertAtCaret` 経由で動作
+  - 成果物: `src/lib/templateApply.ts`, `PromptTemplateDropdown.tsx` / `PromptPalette.tsx`
   - 依存: T1-4, T3-1
   - 規模: M
 
-- [ ] **T3-3**: テンプレエディタ
-  - 内容: `PromptTemplateEditor` モーダル（Radix Dialog）、名前・本文フォーム、バリデーション（名前ユニーク）、保存/キャンセル/削除確認
-  - 成果物: `src/components/PromptPalette/PromptTemplateEditor.tsx` + `.test.tsx`
+- [x] **T3-3**: テンプレエディタ
+  - 内容: `PromptTemplateEditor` モーダル（Radix Dialog）、名前・本文フォーム、バリデーション（名前ユニーク・長さ）、保存/キャンセル/削除確認、`initialBody` 対応、`⌘Enter` 保存。`validateTemplate` は `src/lib/templateValidation.ts` に純関数化。i18n エラーキーを ja/en に追加
+  - 成果物: `src/components/PromptPalette/PromptTemplateEditor.tsx` + `.test.tsx`（11 テスト）、`src/lib/templateValidation.ts`
   - 依存: T1-1
   - 規模: L
 
-- [ ] **T3-4**: `Tab` によるプレースホルダ遷移
-  - 内容: textarea で `Tab` が押されたとき、現在カーソル位置以降の次の `{{...}}` を選択状態にする。なければ末尾カーソル
-  - 成果物: `PromptPalette.tsx` の `handleKeyDown`
+- [x] **T3-4**: `Tab` によるプレースホルダ遷移
+  - 内容: textarea で `Tab` / `Shift+Tab` が押されたとき、次/前の `{{...}}` を選択状態にする。無ければフォールスルー。IME・ドロップダウン表示中は発動せず。`findPreviousPlaceholder` を `templatePlaceholders.ts` に追加
+  - 成果物: `PromptPalette.tsx` の `handleKeyDown`、`src/lib/templatePlaceholders.ts`（5 テスト追加）
   - 依存: T1-4
   - 規模: M
 
-- [ ] **T3-5**: `Cmd+T` と `/` サジェスト
-  - 内容: `Cmd+T` でテンプレドロップダウンを開く。textarea 先頭での `/` でインラインサジェスト `SlashSuggest` を表示
-  - 成果物: `src/components/PromptPalette/SlashSuggest.tsx` + `.test.tsx`, `PromptPalette.tsx`, `shortcuts.ts`
+- [x] **T3-5**: `Cmd+T` と `/` サジェスト
+  - 内容: `Cmd+T` でテンプレドロップダウンをトグル（パレット内スコープ）。textarea 先頭での `/` で `SlashSuggest` を表示し、fuzzy 絞り込み・`↑`/`↓`/`Enter`・条件喪失自動クローズ。`parseSlashQuery` を `src/lib/slashQuery.ts` に分離。shortcuts ヘルプエントリ追加。将来の Claude Code スラッシュコマンド統合は kind 別候補表示で拡張する方針（Phase 3 スコープ外）
+  - 成果物: `src/components/PromptPalette/SlashSuggest.tsx` + `.test.tsx`（13 テスト）, `src/lib/slashQuery.ts`, `PromptPalette.tsx`, `shortcuts.ts`
   - 依存: T3-1
   - 規模: M
 
-- [ ] **T3-6**: 履歴→テンプレ昇格
-  - 内容: 履歴行の「テンプレに保存」アクションで `PromptTemplateEditor` を起動する。エディタの初期値として履歴 body を流し込み、ユーザーが名前付けして保存
-  - 成果物: `PromptHistoryDropdown.tsx` からエディタ呼び出し、必要に応じて `PromptTemplateEditor.tsx` に初期 body プロパティ対応
+- [x] **T3-6**: 履歴→テンプレ昇格
+  - 内容: 履歴行右端に `FilePlus` アイコン追加、クリックで `openEditor({ mode: 'create', initialBody: entry.body })`。`PaletteEditorState.create` に `initialBody?` フィールド追加
+  - 成果物: `PromptHistoryDropdown.tsx`、`promptPaletteStore.ts`、`PromptTemplateEditor.tsx`
   - 依存: T2-4, T3-3
   - 規模: S
 
@@ -225,5 +225,5 @@ flowchart TB
 
 - [x] **M1**: Phase 1 完了 — ストア・永続化・ユーティリティが単体でグリーン。既存パレット挙動に変化なし
 - [x] **M2**: Phase 2 完了 — 「F4 → `↑` → `Cmd+Enter`」で直近プロンプト再送できる。履歴ドロップダウンから流し込みできる
-- [ ] **M3**: Phase 3 完了 — テンプレ新規作成・選択・プレースホルダ Tab 遷移まで動作。`/` サジェストが動作。履歴からテンプレートへの昇格が可能
+- [x] **M3**: Phase 3 完了 — テンプレ新規作成・選択・プレースホルダ Tab 遷移まで動作。`/` サジェストが動作。履歴からテンプレートへの昇格が可能
 - [ ] **M4**: リリース可能 — 全テストグリーン、手動シナリオ完了、steering 更新済み、バージョンタグ付与準備

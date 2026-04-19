@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { parsePlaceholders, findNextPlaceholder } from './templatePlaceholders'
+import {
+  parsePlaceholders,
+  findNextPlaceholder,
+  findPreviousPlaceholder,
+} from './templatePlaceholders'
 
 describe('parsePlaceholders', () => {
   it('プレースホルダを位置付きで返す', () => {
@@ -74,5 +78,35 @@ describe('findNextPlaceholder', () => {
 
   it('プレースホルダが無い本文は常に null', () => {
     expect(findNextPlaceholder('plain text', 0)).toBeNull()
+  })
+})
+
+describe('findPreviousPlaceholder', () => {
+  it('キャレット未満の最も近いプレースホルダを返す', () => {
+    const body = '{{a}} {{b}} {{c}}'
+    // caret=10 なら {{b}} (位置 6..11) は end=11>10 で候補外、{{a}} (0..5) が直近
+    const p = findPreviousPlaceholder(body, 10)
+    expect(p?.name).toBe('a')
+  })
+
+  it('キャレットが全プレースホルダより前なら null', () => {
+    expect(findPreviousPlaceholder('{{a}}', 0)).toBeNull()
+  })
+
+  it('キャレットが最後のプレースホルダ後なら最後を返す', () => {
+    const body = '{{a}} {{b}}'
+    const p = findPreviousPlaceholder(body, body.length)
+    expect(p?.name).toBe('b')
+  })
+
+  it('複数候補のうち end がキャレット以下で最大のものを返す', () => {
+    const body = '{{a}} {{b}} {{c}}'
+    // caret=17 (末尾) なら {{c}} (12..17) の end=17<=17 で一致
+    const p = findPreviousPlaceholder(body, 17)
+    expect(p?.name).toBe('c')
+  })
+
+  it('プレースホルダが無い本文は常に null', () => {
+    expect(findPreviousPlaceholder('plain text', 10)).toBeNull()
   })
 })

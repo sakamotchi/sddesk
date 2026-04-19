@@ -45,3 +45,21 @@ export function findNextPlaceholder(
   }
   return null
 }
+
+/**
+ * 指定キャレット位置より前に出現する直近のプレースホルダを返す。
+ * 境界: end <= caret を満たす最後のプレースホルダ。見つからなければ null。
+ * Shift+Tab による逆方向遷移用。
+ */
+export function findPreviousPlaceholder(
+  body: string,
+  caret: number,
+): Placeholder | null {
+  const all = parsePlaceholders(body)
+  let result: Placeholder | null = null
+  for (const p of all) {
+    if (p.end <= caret) result = p
+    else break
+  }
+  return result
+}

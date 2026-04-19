@@ -129,6 +129,19 @@ describe('PromptHistoryDropdown', () => {
     expect(spy.mock.calls[0][0].body).toBe('hello')
   })
 
+  it('「テンプレに保存」アイコンでエディタを create + initialBody モードで開く', async () => {
+    const user = userEvent.setup()
+    usePromptPaletteStore.getState().pushHistory('promote-me')
+    render(<PromptHistoryDropdown />)
+    await user.click(screen.getByLabelText('promptPalette.history.saveAsTemplate'))
+    const state = usePromptPaletteStore.getState()
+    expect(state.dropdown).toBe('none')
+    expect(state.editorState).toEqual({
+      mode: 'create',
+      initialBody: 'promote-me',
+    })
+  })
+
   it('流し込み後に textareaRef があれば focus を戻す', async () => {
     const ta = document.createElement('textarea')
     ta.value = ''
