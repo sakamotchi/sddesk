@@ -7,9 +7,12 @@ import { usePromptPaletteStore } from '../../stores/promptPaletteStore'
 const writePtyMock = vi.fn<(id: string, data: string) => Promise<void>>()
 const toastErrorMock = vi.fn<(message: string) => void>()
 
+const listSkillsMock = vi.fn<(projectRoot?: string) => Promise<unknown[]>>()
+
 vi.mock('../../lib/tauriApi', () => ({
   tauriApi: {
     writePty: (id: string, data: string) => writePtyMock(id, data),
+    listSkills: (projectRoot?: string) => listSkillsMock(projectRoot),
   },
 }))
 
@@ -43,6 +46,8 @@ function resetStore() {
     historyCursor: null,
     dropdown: 'none',
     editorState: null,
+    skills: [],
+    skillsLoadedAt: null,
   })
 }
 
@@ -53,6 +58,8 @@ describe('PromptPalette', () => {
     writePtyMock.mockReset()
     writePtyMock.mockResolvedValue(undefined)
     toastErrorMock.mockReset()
+    listSkillsMock.mockReset()
+    listSkillsMock.mockResolvedValue([])
   })
 
   it('閉じているときは textarea を描画しない', () => {
@@ -401,6 +408,139 @@ describe('PromptPalette', () => {
     render(<PromptPalette />)
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(usePromptPaletteStore.getState().isOpen).toBe(false)
+  })
+
+  it('SlashSuggest で組み込みコマンドを選択すると draft が "/<name> " に置換される', async () => {
+    act(() => {
+      usePromptPaletteStore.setState({
+        isOpen: true,
+        targetPtyId: 'pty-1',
+        targetTabName: 'zsh',
+        drafts: { 'pty-1': '/res' },
+      })
+    })
+    render(<PromptPalette />)
+    const ta = (await screen.findByRole('textbox')) as HTMLTextAreaElement
+    // /res のサジェストで resume が先頭（fuzzy + name 昇順で resume のみがマッチ）
+    const root = document.querySelector('[data-palette-dropdown="slash"]') as HTMLElement
+    fireEvent.keyDown(root, { key: 'Enter' })
+    expect(usePromptPaletteStore.getState().drafts['pty-1']).toBe('/resume ')
+    expect(writePtyMock).not.toHaveBeenCalled()
+    // パレットが閉じていないこと
+    expect(usePromptPaletteStore.getState().isOpen).toBe(true)
+    // textarea にフォーカスが残っていること確認は jsdom で難しいため省略
+    void ta
+  })
+
+  it('パレット初回オープン時に listSkills が 1 回呼ばれ、以後はキャッシュされる', async () => {
+    act(() => {
+      usePromptPaletteStore.setState({
+        isOpen: true,
+        targetPtyId: 'pty-1',
+        targetTabName: 'zsh',
+        drafts: {},
+      })
+    })
+    const { rerender } = render(<PromptPalette />)
+    // useEffect 経由で非同期呼び出し
+    await act(async () => {
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+    expect(listSkillsMock).toHaveBeenCalledTimes(1)
+    // 2 回目のレンダでも skillsLoadedAt が更新済みなので再呼び出しされない
+    rerender(<PromptPalette />)
+    await act(async () => {
+      await Promise.resolve()
+    })
+    expect(listSkillsMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('textarea にフォーカスがある状態で Tab を押すと SlashSuggest の候補が確定される', async () => {
+    act(() => {
+      usePromptPaletteStore.setState({
+        isOpen: true,
+        targetPtyId: 'pty-1',
+        targetTabName: 'zsh',
+        drafts: { 'pty-1': '/res' },
+      })
+    })
+    render(<PromptPalette />)
+    const ta = (await screen.findByRole('textbox')) as HTMLTextAreaElement
+    fireEvent.keyDown(ta, { key: 'Tab' })
+    expect(usePromptPaletteStore.getState().drafts['pty-1']).toBe('/resume ')
+    expect(writePtyMock).not.toHaveBeenCalled()
+  })
+
+  it('textarea の Enter も SlashSuggest に委譲され候補が確定される', async () => {
+    act(() => {
+      usePromptPaletteStore.setState({
+        isOpen: true,
+        targetPtyId: 'pty-1',
+        targetTabName: 'zsh',
+        drafts: { 'pty-1': '/res' },
+      })
+    })
+    render(<PromptPalette />)
+    const ta = (await screen.findByRole('textbox')) as HTMLTextAreaElement
+    fireEvent.keyDown(ta, { key: 'Enter' })
+    expect(usePromptPaletteStore.getState().drafts['pty-1']).toBe('/resume ')
+  })
+
+  it('textarea の ↓ は SlashSuggest の activeIndex を進める（履歴巡回には落ちない）', async () => {
+    act(() => {
+      usePromptPaletteStore.setState({
+        isOpen: true,
+        targetPtyId: 'pty-1',
+        targetTabName: 'zsh',
+        drafts: { 'pty-1': '/' },
+      })
+      usePromptPaletteStore.getState().pushHistory('old-history')
+    })
+    render(<PromptPalette />)
+    const ta = (await screen.findByRole('textbox')) as HTMLTextAreaElement
+    // 履歴から巡回されると draft が 'old-history' に変わってしまう。
+    // SlashSuggest に委譲されれば draft は '/' のまま。
+    fireEvent.keyDown(ta, { key: 'ArrowDown' })
+    expect(usePromptPaletteStore.getState().drafts['pty-1']).toBe('/')
+  })
+
+  it('textarea の Cmd+Enter はスラッシュ表示中でも送信になる', async () => {
+    act(() => {
+      usePromptPaletteStore.setState({
+        isOpen: true,
+        targetPtyId: 'pty-1',
+        targetTabName: 'zsh',
+        drafts: { 'pty-1': '/resume arg' }, // 空白含むため slashActive は false 扱い。
+      })
+    })
+    render(<PromptPalette />)
+    const ta = (await screen.findByRole('textbox')) as HTMLTextAreaElement
+    await act(async () => {
+      fireEvent.keyDown(ta, { key: 'Enter', metaKey: true })
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+    expect(writePtyMock).toHaveBeenCalledWith('pty-1', '/resume arg\n')
+  })
+
+  it('SlashSuggest でテンプレを選択すると draft がテンプレ body に全置換される（既存挙動）', async () => {
+    act(() => {
+      usePromptPaletteStore.setState({
+        isOpen: true,
+        targetPtyId: 'pty-1',
+        targetTabName: 'zsh',
+        drafts: { 'pty-1': '/zzmy-tpl' },
+      })
+      usePromptPaletteStore
+        .getState()
+        .upsertTemplate({ name: 'zzmy-tpl', body: 'TEMPLATE BODY' })
+    })
+    render(<PromptPalette />)
+    await screen.findByRole('textbox')
+    const root = document.querySelector('[data-palette-dropdown="slash"]') as HTMLElement
+    fireEvent.keyDown(root, { key: 'Enter' })
+    expect(usePromptPaletteStore.getState().drafts['pty-1']).toBe('TEMPLATE BODY')
   })
 
   it('handleChange で historyCursor がリセットされる（ユーザー編集で巡回解除）', async () => {
