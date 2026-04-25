@@ -11,7 +11,7 @@
 ### 1.1 ルートディレクトリ
 
 ```
-spec-prompt/
+sddesk/
 ├── .claude/                  # Claude Code設定・スキル
 ├── .git/                     # Git管理
 ├── .github/                  # GitHub設定（テンプレート等）

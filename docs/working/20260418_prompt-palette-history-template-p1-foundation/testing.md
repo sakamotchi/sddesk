@@ -73,18 +73,18 @@ Phase 1 は **UI 変更なし**のため、確認の主軸は以下:
    ※ ストアが `window` に公開されていない場合は、DevTools Application タブで localStorage に直接キーを追加する:
 
    ```
-   Key:   spec-prompt:prompt-palette
+   Key:   sddesk:prompt-palette
    Value: {"state":{"history":[{"id":"test-1","body":"hello","createdAt":1745000000000}],"templates":[{"id":"tpl-1","name":"test","body":"{{path}}","updatedAt":1745000000000}]},"version":1}
    ```
 
-3. DevTools の Application → Local Storage で `spec-prompt:prompt-palette` エントリが存在することを確認
+3. DevTools の Application → Local Storage で `sddesk:prompt-palette` エントリが存在することを確認
 4. アプリを閉じる
 5. 再度 `npx tauri dev` で起動する
-6. DevTools → Application → Local Storage で `spec-prompt:prompt-palette` が復元されていることを確認
+6. DevTools → Application → Local Storage で `sddesk:prompt-palette` が復元されていることを確認
 
 **期待結果:**
 
-- localStorage に `spec-prompt:prompt-palette` キーが存在する
+- localStorage に `sddesk:prompt-palette` キーが存在する
 - 値は `{"state":{"history":[...],"templates":[...]},"version":1}` の形式
 - 再起動後も同じデータが保持されている
 - `drafts`, `isOpen`, `dropdown`, `editorState` など**ランタイム状態は永続化されていない**（JSON に含まれない）
@@ -134,7 +134,7 @@ Phase 1 は **UI 変更なし**のため、確認の主軸は以下:
 ### フロントエンドテスト（Vitest）
 
 ```bash
-cd /Users/sakamotoyoshitaka/Documents/Github/spec-prompt
+cd /Users/sakamotoyoshitaka/Documents/Github/sddesk
 npm run test
 ```
 

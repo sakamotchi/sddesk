@@ -39,7 +39,7 @@
 対応要件: F-1
 
 - [x] `src-tauri/src/commands/pty.rs:144-152` の通知送信ブロックで `DisplayTitleCache::get` を参照
-- [x] 値がある場合 `Claude Code — <name>`、ない場合は `SpecPrompt / Claude Code` にフォールバック
+- [x] 値がある場合 `Claude Code — <name>`、ない場合は `SDDesk / Claude Code` にフォールバック
 - [x] 既存のフォーカス判定・通知 OFF 時の抑止ロジックに影響しないこと
 
 ### T-5: Rust 側 — `close_pty` でのキャッシュ掃除

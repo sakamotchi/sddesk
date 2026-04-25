@@ -16,7 +16,7 @@ Rust の `list_claude_skills` コマンドを新設し、`SKILL.md` の YAML fro
 
 ### 狙い
 
-- SpecPrompt 上で `/` を打つだけで、Claude Code の **全**コマンド（本体 + バンドル + 個別 + プロジェクト）を発見・挿入できる状態にする
+- SDDesk 上で `/` を打つだけで、Claude Code の **全**コマンド（本体 + バンドル + 個別 + プロジェクト）を発見・挿入できる状態にする
 - Phase A の型基盤（`SlashSuggestItem` の `user-skill` / `project-skill`）を実値で埋め、UI 改修を最小差分で完了させる
 - 外部 CLI 呼び出しや常駐プロセス監視は避け、**パレット初回オープン時の 1 回スキャン + runtime キャッシュ** で軽量に実現する
 
@@ -120,7 +120,7 @@ Rust の `list_claude_skills` コマンドを新設し、`SKILL.md` の YAML fro
 - **Skill の実行時引数入力 UI**: `argument-hint` を表示するのみで、構造化入力フォームは作らない
 - **Skill body のプレビュー**: 候補行に description のみ表示、SKILL.md 本文のレンダリングなし
 - **Skill のライブリロード**: ファイル監視で自動反映せず、パレット再オープンで再スキャンする運用（明示的なリロードボタンも v1.3 以降）
-- **Skill エディタ**: SpecPrompt 上で SKILL.md を作成・編集する UI なし
+- **Skill エディタ**: SDDesk 上で SKILL.md を作成・編集する UI なし
 
 ## 実装対象ファイル（予定）
 

@@ -2,7 +2,7 @@
 
 ## 概要
 
-GitHub Actions を使用して、PR 時の自動テスト・ビルドチェックと、タグプッシュ時のリリースビルドを整備する。既存の `sql-query-build` プロジェクトのワークフロー構成（`ci.yml` / `build-test.yml` / `release.yml`）を踏襲して、spec-prompt に適合した形で移植する。
+GitHub Actions を使用して、PR 時の自動テスト・ビルドチェックと、タグプッシュ時のリリースビルドを整備する。既存の `sql-query-build` プロジェクトのワークフロー構成（`ci.yml` / `build-test.yml` / `release.yml`）を踏襲して、sddesk に適合した形で移植する。
 
 ## 背景・目的
 

@@ -7,7 +7,7 @@ Config Manager・最近開いたプロジェクト履歴・プロジェクト切
 ## 前提条件
 
 - `npx tauri dev` でアプリが起動していること
-- テスト用に2つ以上のフォルダを用意しておく（例: `spec-prompt` と `tmp-test-project`）
+- テスト用に2つ以上のフォルダを用意しておく（例: `sddesk` と `tmp-test-project`）
 
 ---
 
@@ -17,7 +17,7 @@ Config Manager・最近開いたプロジェクト履歴・プロジェクト切
 
 **手順:**
 
-1. `~/Library/Application Support/spec-prompt/config.json` が存在する場合は削除する
+1. `~/Library/Application Support/sddesk/config.json` が存在する場合は削除する
 2. アプリを起動する
 3. ツリーパネルのヘッダーにあるプロジェクト名（「プロジェクト」）をクリックする
 
@@ -25,7 +25,7 @@ Config Manager・最近開いたプロジェクト履歴・プロジェクト切
 
 - ドロップダウンが開く
 - 「最近開いたプロジェクト」の下に項目が表示されない（空）
-- `~/Library/Application Support/spec-prompt/config.json` が新規作成されている
+- `~/Library/Application Support/sddesk/config.json` が新規作成されている
 
 **確認結果:**
 
@@ -37,12 +37,12 @@ Config Manager・最近開いたプロジェクト履歴・プロジェクト切
 
 **手順:**
 
-1. ヘッダーの 📂 ボタンをクリックして `spec-prompt` フォルダを開く
-2. ヘッダーのプロジェクト名（`spec-prompt`）をクリックする
+1. ヘッダーの 📂 ボタンをクリックして `sddesk` フォルダを開く
+2. ヘッダーのプロジェクト名（`sddesk`）をクリックする
 
 **期待結果:**
 
-- ドロップダウンに `spec-prompt` のパスが表示される
+- ドロップダウンに `sddesk` のパスが表示される
 - 現在のプロジェクトにチェックマーク（✓）が付いている
 
 **確認結果:**
@@ -60,7 +60,7 @@ Config Manager・最近開いたプロジェクト履歴・プロジェクト切
 
 **期待結果:**
 
-- ドロップダウンに `tmp-test-project`（先頭）と `spec-prompt` の2件が表示される
+- ドロップダウンに `tmp-test-project`（先頭）と `sddesk` の2件が表示される
 - `tmp-test-project` にチェックマークが付いている
 
 **確認結果:**
@@ -74,12 +74,12 @@ Config Manager・最近開いたプロジェクト履歴・プロジェクト切
 **手順:**
 
 1. ケース 3 の状態からドロップダウンを開く
-2. `spec-prompt` をクリックする
+2. `sddesk` をクリックする
 
 **期待結果:**
 
-- ファイルツリーが `spec-prompt` の内容に切り替わる
-- ドロップダウンの `spec-prompt` にチェックマークが移動する
+- ファイルツリーが `sddesk` の内容に切り替わる
+- ドロップダウンの `sddesk` にチェックマークが移動する
 - 開いていたコンテンツタブがすべて閉じる
 
 **確認結果:**
@@ -92,13 +92,13 @@ Config Manager・最近開いたプロジェクト履歴・プロジェクト切
 
 **手順:**
 
-1. `spec-prompt` を開き、いくつかのフォルダを展開する
+1. `sddesk` を開き、いくつかのフォルダを展開する
 2. ドロップダウンから `tmp-test-project` に切り替える
-3. 再度 `spec-prompt` に切り替える
+3. 再度 `sddesk` に切り替える
 
 **期待結果:**
 
-- `spec-prompt` に戻ったとき、フォルダはすべて折りたたまれた状態になっている（展開状態はリセット）
+- `sddesk` に戻ったとき、フォルダはすべて折りたたまれた状態になっている（展開状態はリセット）
 
 **確認結果:**
 
@@ -110,7 +110,7 @@ Config Manager・最近開いたプロジェクト履歴・プロジェクト切
 
 **手順:**
 
-1. `spec-prompt` でいくつかのファイルをクリックしてコンテンツタブで開く
+1. `sddesk` でいくつかのファイルをクリックしてコンテンツタブで開く
 2. ドロップダウンから `tmp-test-project` に切り替える
 
 **期待結果:**
@@ -144,12 +144,12 @@ Config Manager・最近開いたプロジェクト履歴・プロジェクト切
 
 **手順:**
 
-1. `spec-prompt` が履歴にある状態で、📂 ボタンから再度 `spec-prompt` を開く
+1. `sddesk` が履歴にある状態で、📂 ボタンから再度 `sddesk` を開く
 2. ドロップダウンを確認する
 
 **期待結果:**
 
-- `spec-prompt` は1件だけ表示される（重複しない）
+- `sddesk` は1件だけ表示される（重複しない）
 - 先頭（最新）の位置に移動している
 
 **確認結果:**
@@ -188,7 +188,7 @@ Config Manager・最近開いたプロジェクト履歴・プロジェクト切
 **期待結果:**
 
 - 再起動前と同じ履歴が表示される
-- `~/Library/Application Support/spec-prompt/config.json` に保存されていることを確認
+- `~/Library/Application Support/sddesk/config.json` に保存されていることを確認
 
 **確認結果:**
 
@@ -203,7 +203,7 @@ Config Manager・最近開いたプロジェクト履歴・プロジェクト切
 1. 数件のプロジェクトを開く
 2. ターミナルで以下を実行する（開発・本番ともに同じパス）：
    ```bash
-   cat ~/Library/Application\ Support/spec-prompt/config.json
+   cat ~/Library/Application\ Support/sddesk/config.json
    ```
 
 **期待結果:**

@@ -4,7 +4,7 @@
 
 コンテンツタブ切替時に、前のタブで表示していたスクロール位置が引き継がれてしまう不具合を修正する。タブごとにスクロール位置を記憶し、切替時は各タブ固有の位置に復元する。
 
-関連 Issue: [#9](https://github.com/sakamotchi/spec-prompt/issues/9)
+関連 Issue: [#9](https://github.com/sakamotchi/sddesk/issues/9)
 
 ## 背景・目的
 
@@ -118,4 +118,4 @@
 
 - `docs/steering/features/content-viewer.md` — コンテンツビューア機能仕様
 - `docs/steering/02_functional_design.md` — UI/UX の期待仕様
-- GitHub Issue: [#9 コンテンツタブ切替時にスクロール位置が前タブから引き継がれてしまう](https://github.com/sakamotchi/spec-prompt/issues/9)
+- GitHub Issue: [#9 コンテンツタブ切替時にスクロール位置が前タブから引き継がれてしまう](https://github.com/sakamotchi/sddesk/issues/9)

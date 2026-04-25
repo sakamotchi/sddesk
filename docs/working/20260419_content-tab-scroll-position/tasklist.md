@@ -1,6 +1,6 @@
 # タスクリスト - content-tab-scroll-position
 
-関連 Issue: [#9](https://github.com/sakamotchi/spec-prompt/issues/9)
+関連 Issue: [#9](https://github.com/sakamotchi/sddesk/issues/9)
 作業ブランチ: `fix/content-tab-scroll-position`
 
 ## 進捗サマリー

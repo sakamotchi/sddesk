@@ -9,7 +9,7 @@ Frontend (React/TypeScript)
     ↓
 src/stores/promptPaletteStore.ts  ← スキーマ拡張 + persist
     ↓ persist middleware
-localStorage (spec-prompt:prompt-palette)
+localStorage (sddesk:prompt-palette)
 
 src/lib/templatePlaceholders.ts    ← 純関数ユーティリティ（UI 非依存）
 
@@ -257,7 +257,7 @@ export const usePromptPaletteStore = create<PromptPaletteState>()(
       closeEditor: () => set({ editorState: null }),
     }),
     {
-      name: 'spec-prompt:prompt-palette',
+      name: 'sddesk:prompt-palette',
       version: 1,
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
@@ -492,7 +492,7 @@ describe('findNextPlaceholder', () => {
 
 | 決定事項 | 理由 | 代替案 |
 |---------|------|--------|
-| 履歴は localStorage のみに保存 | プライバシー（端末ローカル閉域）と実装簡素化のため。Rust 側 I/O 不要 | `~/.config/spec-prompt/config.json` へ統合。将来テンプレ共有時に検討 |
+| 履歴は localStorage のみに保存 | プライバシー（端末ローカル閉域）と実装簡素化のため。Rust 側 I/O 不要 | `~/.config/sddesk/config.json` へ統合。将来テンプレ共有時に検討 |
 | テンプレの name ユニーク性チェックは UI 側で実施 | ストアは低レベル API（UPSERT）に徹する。UI 側は編集中の name 衝突を即時バリデーションしたい | ストアで検証、重複時に例外を投げる |
 | プレースホルダパーサは純関数 | UI 実装（Phase 3）を待たずにテスト可能にするため | Zustand selector で導出 |
 | エスケープ `\{\{` は Phase 1 非対応 | Phase 1 スコープの限定と、実使用上の必要性が低いため | 正規表現を拡張（エスケープ対応） |

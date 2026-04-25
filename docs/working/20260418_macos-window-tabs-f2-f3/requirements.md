@@ -20,10 +20,10 @@ WBS（`docs/local/20260418-macOSウィンドウタブ統合/03_WBS.md`）で F2 
 
 ### F3 の動機
 
-- 現状 `appStore` は `persist` の `name` を `spec-prompt-app-store` 固定で使っており、**複数ウィンドウ間で localStorage が共有**される。
+- 現状 `appStore` は `persist` の `name` を `sddesk-app-store` 固定で使っており、**複数ウィンドウ間で localStorage が共有**される。
 - F1 完了時点でユーザーは複数ウィンドウを開けるが、例えばウィンドウ A で `activeMainTab` を切り替えるとウィンドウ B にも伝播してしまう（最後勝ちレース）。
 - `windowSession.ts` は projectRoot のみを per-window に切り出しているが、`activeMainTab` / `mainLayout` / `selectedFile` / `expandedDirs` / `pathFormat` 等は共有されており、ウィンドウ独立作業が破綻する。
-- Zustand `persist` の `name` を **`spec-prompt-app-store:${label}`** に名前空間化して解決する。
+- Zustand `persist` の `name` を **`sddesk-app-store:${label}`** に名前空間化して解決する。
 
 ## 要件一覧
 
@@ -36,7 +36,7 @@ WBS（`docs/local/20260418-macOSウィンドウタブ統合/03_WBS.md`）で F2 
   - [ ] `(e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && (e.key === 'n' || e.key === 'N')` で判定
   - [ ] `tauriApi.openNewWindow()` を引数なし（= 空の新規ウィンドウ）で呼ぶ
   - [ ] プロンプト編集パレット表示中（`usePromptPaletteStore.isOpen`）・`PathPalette` 表示中は no-op
-  - [ ] テキスト入力中（textarea / input フォーカス時）は OS 標準の `⌘N` 動作に任せる（preventDefault しない）— ただし SpecPrompt には編集可能な input がほぼないため、実運用では常に新規ウィンドウを開く挙動でよい
+  - [ ] テキスト入力中（textarea / input フォーカス時）は OS 標準の `⌘N` 動作に任せる（preventDefault しない）— ただし SDDesk には編集可能な input がほぼないため、実運用では常に新規ウィンドウを開く挙動でよい
   - [ ] 既存の他ショートカット（`Ctrl+Tab`, `Cmd+Shift+P`, `Ctrl+P`, `F2`）と干渉しない
 
 #### F2-2: アプリメニュー `File > New Window` 追加（WBS F2-3）
@@ -63,15 +63,15 @@ WBS（`docs/local/20260418-macOSウィンドウタブ統合/03_WBS.md`）で F2 
 
 - **説明**: Zustand `persist` の `name` をウィンドウラベル付きに変更し、ウィンドウごとに独立した localStorage エントリにする。
 - **受け入れ条件**:
-  - [ ] `src/stores/appStore.ts:205` の `name: 'spec-prompt-app-store'` を動的生成 `` `spec-prompt-app-store:${getCurrentWindow().label}` `` に変更
+  - [ ] `src/stores/appStore.ts:205` の `name: 'sddesk-app-store'` を動的生成 `` `sddesk-app-store:${getCurrentWindow().label}` `` に変更
   - [ ] モジュールトップレベルでラベル取得し、`persist` 生成時に 1 回だけ評価（毎レンダー評価は不要）
   - [ ] 既存の `partialize` / `storage`（カスタム replacer/reviver）は維持
-  - [ ] F1 で追加した `label: "main"` によってメインウィンドウは `spec-prompt-app-store:main` になる
+  - [ ] F1 で追加した `label: "main"` によってメインウィンドウは `sddesk-app-store:main` になる
   - [ ] 新規ウィンドウ（`window-{timestamp}-{rand}` ラベル）はそれぞれ独立キー
 
 #### F3-2: 既存 localStorage キーのマイグレーション（任意）
 
-- **説明**: F1 以前のユーザーは `spec-prompt-app-store`（suffix なし）に状態を持つ。新キー `spec-prompt-app-store:main` に自動移行する。
+- **説明**: F1 以前のユーザーは `sddesk-app-store`（suffix なし）に状態を持つ。新キー `sddesk-app-store:main` に自動移行する。
 - **受け入れ条件**:
   - [ ] モジュール初期化時に一度だけ実行：旧キーが存在かつ新キー（`:main`）が無い場合、内容をコピー → 旧キー削除
   - [ ] v1.1 に先送りしてもよい（F3 時点ではメインウィンドウが空状態で起動するのが許容なら不要）
@@ -159,7 +159,7 @@ WBS（`docs/local/20260418-macOSウィンドウタブ統合/03_WBS.md`）で F2 
 - Tauri v2 Menu API は Rust 側で構築する必要があり、純粋にフロント側だけでは完結しない。`setup` hook で構築 → イベントでフロントに通知する流れ。
 - 旧キーのマイグレーションは**初回アプリ起動時のメインウィンドウでのみ**実行する（label=main のときのみ）。他ウィンドウで実行すると旧状態が誤ってコピーされるリスク。
 - persist の `name` を変更すると、macOS 更新版を入れた既存ユーザーは一瞬「設定がリセット」されたように見える。マイグレーション（F3-2）でこれを防ぐ。
-- F2+F3 実装後、**ウィンドウを閉じると `spec-prompt-app-store:window-xxxxx` エントリが localStorage に残り続ける**。クリーンアップは F5 で対応。
+- F2+F3 実装後、**ウィンドウを閉じると `sddesk-app-store:window-xxxxx` エントリが localStorage に残り続ける**。クリーンアップは F5 で対応。
 
 ## 参考資料
 

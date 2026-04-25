@@ -9,9 +9,9 @@ F1 に必要な部分のみを詳細化する。全体設計の原典は `docs/l
 ```
 設定レイヤー
 ├─ src-tauri/tauri.conf.json
-│    └─ app.windows[0].tabbingIdentifier = "SpecPrompt"   ← F1 追加
+│    └─ app.windows[0].tabbingIdentifier = "SDDesk"   ← F1 追加
 └─ src/lib/tauriApi.ts:openNewWindow
-     └─ new WebviewWindow(label, { ..., tabbingIdentifier: "SpecPrompt" })   ← F1 追加
+     └─ new WebviewWindow(label, { ..., tabbingIdentifier: "SDDesk" })   ← F1 追加
 
 どちらも最終的に macOS NSWindow.tabbingIdentifier に反映され、
 同 identifier を持つウィンドウが自動的にタブ統合対象になる。
@@ -30,15 +30,15 @@ F1 に必要な部分のみを詳細化する。全体設計の原典は `docs/l
 
 ### 概要
 
-1. **`tauri.conf.json`**: `windows[0]` に `label: "main"` と `tabbingIdentifier: "SpecPrompt"` を追加。
-2. **`tauriApi.ts`**: `openNewWindow` の `WebviewWindow` options に `tabbingIdentifier: 'SpecPrompt'` を追加。
+1. **`tauri.conf.json`**: `windows[0]` に `label: "main"` と `tabbingIdentifier: "SDDesk"` を追加。
+2. **`tauriApi.ts`**: `openNewWindow` の `WebviewWindow` options に `tabbingIdentifier: 'SDDesk'` を追加。
 3. **E2E**: 既存のツリーヘッダボタンで 2 つ目のウィンドウを開き、Window > Merge All Windows で統合・タブ名・プロジェクト切替反映を確認。
-4. **条件付きタイトル書式修正**: タブ名が `SpecPrompt` 固定で出てしまう場合のみ `TreePanel.tsx:54` を `{name} — SpecPrompt` に反転。
+4. **条件付きタイトル書式修正**: タブ名が `SDDesk` 固定で出てしまう場合のみ `TreePanel.tsx:54` を `{name} — SDDesk` に反転。
 
 ### 詳細
 
 1. `src-tauri/tauri.conf.json` 編集 — `label` と `tabbingIdentifier` の 2 キー追加。
-2. `src/lib/tauriApi.ts:149` の `WebviewWindow` options に `tabbingIdentifier: 'SpecPrompt'` を追加。
+2. `src/lib/tauriApi.ts:149` の `WebviewWindow` options に `tabbingIdentifier: 'SDDesk'` を追加。
 3. `npx tauri dev` で起動 → ツリーヘッダの「新規ウィンドウ」ボタンで 2 つ目を開く → Window > Merge All Windows。
 4. タブ名を確認し、必要に応じて `TreePanel.tsx:54` の書式を反転（別コミット推奨）。
 
@@ -52,7 +52,7 @@ F1 に必要な部分のみを詳細化する。全体設計の原典は `docs/l
   "app": {
     "windows": [
       {
-        "title": "SpecPrompt",
+        "title": "SDDesk",
         "width": 1280,
         "height": 800,
         "minWidth": 800,
@@ -72,14 +72,14 @@ F1 に必要な部分のみを詳細化する。全体設計の原典は `docs/l
     "windows": [
       {
         "label": "main",
-        "title": "SpecPrompt",
+        "title": "SDDesk",
         "width": 1280,
         "height": 800,
         "minWidth": 800,
         "minHeight": 600,
         "devtools": true,
         "dragDropEnabled": true,
-        "tabbingIdentifier": "SpecPrompt"
+        "tabbingIdentifier": "SDDesk"
       }
     ]
   }
@@ -97,7 +97,7 @@ openNewWindow: (projectPath?: string): void => {
     : 'index.html?new=1'
   const win = new WebviewWindow(label, {
     url,
-    title: 'SpecPrompt',
+    title: 'SDDesk',
     width: 1200,
     height: 800,
     resizable: true,
@@ -115,11 +115,11 @@ openNewWindow: (projectPath?: string): void => {
     : 'index.html?new=1'
   const win = new WebviewWindow(label, {
     url,
-    title: 'SpecPrompt',
+    title: 'SDDesk',
     width: 1200,
     height: 800,
     resizable: true,
-    tabbingIdentifier: 'SpecPrompt',
+    tabbingIdentifier: 'SDDesk',
   })
   win.once('tauri://error', (e) => console.error('Failed to create window:', e))
 },
@@ -129,12 +129,12 @@ openNewWindow: (projectPath?: string): void => {
 
 **現状**：
 ```typescript
-getCurrentWindow().setTitle(name ? `SpecPrompt — ${name}` : 'SpecPrompt').catch(console.error)
+getCurrentWindow().setTitle(name ? `SDDesk — ${name}` : 'SDDesk').catch(console.error)
 ```
 
-**E2E で「タブ名が `SpecPrompt` 固定になる」ことを確認した場合のみ**、以下に変更：
+**E2E で「タブ名が `SDDesk` 固定になる」ことを確認した場合のみ**、以下に変更：
 ```typescript
-getCurrentWindow().setTitle(name ? `${name} — SpecPrompt` : 'SpecPrompt').catch(console.error)
+getCurrentWindow().setTitle(name ? `${name} — SDDesk` : 'SDDesk').catch(console.error)
 ```
 
 この変更は E2E 結果次第で実施／見送りを判断する。
@@ -170,7 +170,7 @@ F1 は UI コンポーネントの追加・変更なし。OS 機能に依存。
 
 F1 では既存ストアの変更なし。persist キーの名前空間分離は F3 で実施。
 
-F1 時点で 2 ウィンドウを同時起動すると `spec-prompt-app-store` 共有による状態混線の可能性はあるが、`src/lib/windowSession.ts` が projectRoot を個別管理しているため F1 の E2E では顕在化しない想定。E2E 中に異常が出たら記録し、F3 で対応する。
+F1 時点で 2 ウィンドウを同時起動すると `sddesk-app-store` 共有による状態混線の可能性はあるが、`src/lib/windowSession.ts` が projectRoot を個別管理しているため F1 の E2E では顕在化しない想定。E2E 中に異常が出たら記録し、F3 で対応する。
 
 ## テストコード
 
@@ -187,13 +187,13 @@ vi.mock('@tauri-apps/api/webviewWindow', () => ({
 }))
 
 describe('openNewWindow', () => {
-  it('tabbingIdentifier: "SpecPrompt" 付きで WebviewWindow を生成する', async () => {
+  it('tabbingIdentifier: "SDDesk" 付きで WebviewWindow を生成する', async () => {
     const { tauriApi } = await import('./tauriApi')
     const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow')
     tauriApi.openNewWindow()
     expect(WebviewWindow).toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({ tabbingIdentifier: 'SpecPrompt' })
+      expect.objectContaining({ tabbingIdentifier: 'SDDesk' })
     )
   })
 })
@@ -209,7 +209,7 @@ F1 では Rust 側変更なし、追加テストなし。
 |---------|------|--------|
 | `tauri.conf.json` と `tauriApi.ts` の両方に `tabbingIdentifier` を設定 | Tauri v2 の `WebviewWindow` 動的生成は静的設定を継承しないため、両方に書かないと動的ウィンドウがタブ統合対象外になる | 片方のみ（却下、機能しない） |
 | `useWindowTitle` フックを新設しない | `TreePanel.tsx:54` で既に同機能が実装済み。新設は重複コード化 | フック化してリファクタ（F1 のスコープ外、必要なら別 PR で） |
-| `tabbingIdentifier` 値をハードコード `"SpecPrompt"` | 変更頻度がほぼゼロ、定数抽出は過剰設計 | 定数 export（将来 F2+F3 で必要になれば導入） |
+| `tabbingIdentifier` 値をハードコード `"SDDesk"` | 変更頻度がほぼゼロ、定数抽出は過剰設計 | 定数 export（将来 F2+F3 で必要になれば導入） |
 | `label: "main"` を追加 | `capabilities/default.json` の `windows: ["main", "window-*"]` が "main" を前提にしているため、明示するのが安全 | label 省略（Tauri がデフォルト "main" を割り当てるはずだが、明示すべき） |
 | タイトル書式反転は E2E 結果次第 | 現行書式で既に動いている可能性があり、先行変更はリスク | 先行反転（却下、E2E で正否を決める） |
 | ユニットテストを必須化しない | OS 機能依存で手動 E2E が主要検証。ユニットテストは `openNewWindow` の options が正しいことの確認に限定され、コストに見合わない場合がある | 必須化（却下、柔軟に判断） |
@@ -217,4 +217,4 @@ F1 では Rust 側変更なし、追加テストなし。
 ## 未解決事項
 
 - [ ] 既存 `tauriApi` のテストファイル有無（`src/lib/tauriApi.test.ts` 等）を実装着手時に確認。存在すればユニットテスト追加、無ければ見送り。
-- [ ] タイトル書式 `SpecPrompt — {name}` がタブ名として正しく出るかの E2E 結果。
+- [ ] タイトル書式 `SDDesk — {name}` がタブ名として正しく出るかの E2E 結果。

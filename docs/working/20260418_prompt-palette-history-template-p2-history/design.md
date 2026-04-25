@@ -202,7 +202,7 @@ import { usePromptPaletteStore } from '../../stores/promptPaletteStore'
 
 describe('PromptHistoryDropdown', () => {
   beforeEach(() => {
-    localStorage.removeItem('spec-prompt:prompt-palette')
+    localStorage.removeItem('sddesk:prompt-palette')
     usePromptPaletteStore.setState({
       history: [],
       dropdown: 'history',
@@ -254,7 +254,7 @@ import { usePromptPaletteStore } from '../stores/promptPaletteStore'
 
 describe('usePromptHistoryCursor', () => {
   beforeEach(() => {
-    localStorage.removeItem('spec-prompt:prompt-palette')
+    localStorage.removeItem('sddesk:prompt-palette')
     usePromptPaletteStore.setState({
       isOpen: true,
       targetPtyId: 'pty-1',

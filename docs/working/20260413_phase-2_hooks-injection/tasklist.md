@@ -13,7 +13,7 @@
 ### T-1: TERM_PROGRAM 環境変数の設定
 
 - [ ] `pty.rs` の `spawn_pty` に `cmd.env("TERM_PROGRAM", "iTerm.app")` を追加
-- [ ] SpecPrompt のターミナルで `echo $TERM_PROGRAM` → `iTerm.app` を確認
+- [ ] SDDesk のターミナルで `echo $TERM_PROGRAM` → `iTerm.app` を確認
 
 ### T-2: Osc9Detector の実装
 
@@ -32,10 +32,10 @@
 
 ### T-4: E2E 動作確認
 
-- [ ] SpecPrompt 内で `claude` を起動
+- [ ] SDDesk 内で `claude` を起動
 - [ ] 承認待ちで通知が表示されることを確認
 - [ ] タスク完了で通知が表示されることを確認
-- [ ] SpecPrompt フォーカス中は通知が抑制されることを確認
+- [ ] SDDesk フォーカス中は通知が抑制されることを確認
 - [ ] `cargo test` 全件パス
 - [ ] `npm run build` エラーなし
 
@@ -53,5 +53,5 @@
 - [ ] 全タスクが完了
 - [ ] `cargo check` がエラーなし
 - [ ] `cargo test` がパス
-- [ ] SpecPrompt 内の Claude Code で通知が動作する
+- [ ] SDDesk 内の Claude Code で通知が動作する
 - [ ] ユーザーの Claude Code 設定変更が不要であること

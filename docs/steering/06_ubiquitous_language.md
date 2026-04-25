@@ -8,7 +8,7 @@
 
 ## 1. 概要
 
-このドキュメントは、SpecPromptプロジェクトで使用する共通用語（ユビキタス言語）を定義します。開発チーム、ドキュメント、コード内で一貫した用語を使用することで、コミュニケーションの齟齬を防ぎます。
+このドキュメントは、SDDeskプロジェクトで使用する共通用語（ユビキタス言語）を定義します。開発チーム、ドキュメント、コード内で一貫した用語を使用することで、コミュニケーションの齟齬を防ぎます。
 
 ---
 
@@ -18,7 +18,7 @@
 
 | 用語 | 英語表記 | 定義 | コード上の表現 |
 |------|---------|------|---------------|
-| プロジェクト | Project | SpecPromptで開くフォルダの単位。ルートパスを持つ | `project` |
+| プロジェクト | Project | SDDeskで開くフォルダの単位。ルートパスを持つ | `project` |
 | プロジェクトルート | Project Root | プロジェクトの最上位ディレクトリパス | `projectRoot: string` |
 | 最近開いたプロジェクト | Recent Projects | 過去に開いたプロジェクトの履歴リスト | `recentProjects: string[]` |
 | プロジェクトを開く | Open Project | フォルダ選択ダイアログでプロジェクトを指定する操作 | `openProject()` |
@@ -190,7 +190,7 @@
 
 | 用語 | 英語表記 | 定義 | コード上の表現 |
 |------|---------|------|---------------|
-| 設定ファイル | Config File | アプリ設定を保存するJSONファイル（~/.config/spec-prompt/config.json） | `Config` |
+| 設定ファイル | Config File | アプリ設定を保存するJSONファイル（~/.config/sddesk/config.json） | `Config` |
 | 外観設定 | Appearance Settings | テーマ・フォント・通知 ON/OFF をまとめた設定セクション | `AppearanceSettings` |
 | テーマ | Theme | ダーク/ライトの配色テーマ | `appearance.theme: string` |
 | コンテンツフォント | Content Font | マークダウン／コード表示で使うフォント | `appearance.content_font_family` |

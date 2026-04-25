@@ -172,7 +172,7 @@ export const useAppStore = create<AppState>()(
       clearFileSelection: () => set({ selectedFiles: [] }),
     }),
     {
-      name: 'spec-prompt-app-store',
+      name: 'sddesk-app-store',
       partialize: (state) => ({
         projectRoot: state.projectRoot,
         activeMainTab: state.activeMainTab,

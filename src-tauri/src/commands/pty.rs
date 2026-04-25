@@ -151,7 +151,7 @@ pub fn spawn_pty(
                             let title = cache
                                 .get(&pty_id)
                                 .map(|t| format!("Claude Code — {}", t))
-                                .unwrap_or_else(|| "SpecPrompt / Claude Code".to_string());
+                                .unwrap_or_else(|| "SDDesk / Claude Code".to_string());
                             crate::commands::notification::send_native_notification(
                                 &app,
                                 &title,

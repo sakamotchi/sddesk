@@ -9,7 +9,7 @@ Frontend (React/TypeScript)
     appStore (Zustand + persist middleware)
         ↓ JSON.stringify / JSON.parse（カスタムシリアライザー）
     localStorage
-        キー: "spec-prompt-app-store"
+        キー: "sddesk-app-store"
 ```
 
 ### 影響範囲
@@ -82,7 +82,7 @@ export const useAppStore = create<AppState>()(
       // ...アクションは変更なし...
     }),
     {
-      name: 'spec-prompt-app-store',
+      name: 'sddesk-app-store',
       // fileTree は永続化しない
       partialize: (state) => ({
         activeMainTab: state.activeMainTab,
@@ -131,13 +131,13 @@ describe('appStore persist', () => {
 
   it('projectRoot を設定すると localStorage に保存される', () => {
     useAppStore.getState().setProjectRoot('/my/project')
-    const saved = JSON.parse(localStorage.getItem('spec-prompt-app-store') ?? '{}')
+    const saved = JSON.parse(localStorage.getItem('sddesk-app-store') ?? '{}')
     expect(saved.state.projectRoot).toBe('/my/project')
   })
 
   it('expandedDirs の Set が正しくシリアライズ・デシリアライズされる', () => {
     useAppStore.getState().toggleExpandedDir('/my/project/src')
-    const saved = JSON.parse(localStorage.getItem('spec-prompt-app-store') ?? '{}')
+    const saved = JSON.parse(localStorage.getItem('sddesk-app-store') ?? '{}')
     // Array として保存されていること
     expect(saved.state.expandedDirs).toEqual({
       __type: 'Set',
@@ -147,7 +147,7 @@ describe('appStore persist', () => {
 
   it('fileTree は localStorage に保存されない', () => {
     useAppStore.getState().setFileTree([{ name: 'test', path: '/test', is_dir: false }])
-    const saved = JSON.parse(localStorage.getItem('spec-prompt-app-store') ?? '{}')
+    const saved = JSON.parse(localStorage.getItem('sddesk-app-store') ?? '{}')
     expect(saved.state.fileTree).toBeUndefined()
   })
 })

@@ -25,7 +25,7 @@ Rust バックエンドへの変更は不要。localStorage と Tauri v2 の `We
 
 ### 概要
 
-localStorage キー `specprompt-window-sessions` に、メインウィンドウ以外（追加ウィンドウ）の `projectRoot` リストを保存する。
+localStorage キー `sddesk-window-sessions` に、メインウィンドウ以外（追加ウィンドウ）の `projectRoot` リストを保存する。
 メインウィンドウ起動時にリストを読み取り、`WebviewWindow` で復元する。
 
 ### 詳細
@@ -70,7 +70,7 @@ interface WindowSession {
   projectRoot: string | null  // null = 空ウィンドウ
 }
 
-const SESSION_KEY = 'specprompt-window-sessions'
+const SESSION_KEY = 'sddesk-window-sessions'
 
 export function saveWindowSessions(sessions: WindowSession[]): void {
   localStorage.setItem(SESSION_KEY, JSON.stringify(sessions))

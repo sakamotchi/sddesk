@@ -126,7 +126,7 @@ try {
   console.log('')
   console.log(`   バージョン: v${nextVersion}`)
   console.log('   GitHub Actions でビルドが開始されます。')
-  console.log('   進捗: https://github.com/sakamotchi/spec-prompt/actions')
+  console.log('   進捗: https://github.com/sakamotchi/sddesk/actions')
   console.log('')
 } catch (error) {
   console.error('')

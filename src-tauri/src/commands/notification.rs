@@ -180,7 +180,7 @@ pub fn is_app_focused(app: &AppHandle) -> bool {
 }
 
 /// macOS ネイティブ通知を送信する。
-/// プロダクションビルドでは tauri-plugin-notification（SpecPrompt アイコン表示）、
+/// プロダクションビルドでは tauri-plugin-notification（SDDesk アイコン表示）、
 /// デバッグビルドでは osascript にフォールバックする。
 pub fn send_native_notification(app: &AppHandle, title: &str, body: &str) {
     // まず tauri-plugin-notification を試行
@@ -355,7 +355,7 @@ pub fn start_hook_server(app: AppHandle) {
                 // フォーカス中は通知を抑制
                 let focused = is_app_focused(&app);
                 if !focused {
-                    let title = "SpecPrompt / Claude Code".to_string();
+                    let title = "SDDesk / Claude Code".to_string();
                     let body = format!("[{}] {}", notification_type.label(), message);
                     send_native_notification(&app, &title, &body);
                 }

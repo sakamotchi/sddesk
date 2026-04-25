@@ -25,7 +25,7 @@
 - [x] `zustand/middleware` から `persist`, `createJSONStorage` を import
 - [x] `create<PromptPaletteState>()(persist(..., { name, version, storage, partialize }))` に置き換え
 - [x] `partialize` で `history` と `templates` のみ永続化対象に指定
-- [x] storage 名を `spec-prompt:prompt-palette` に設定
+- [x] storage 名を `sddesk:prompt-palette` に設定
 - [x] `version: 1` を設定（`migrate` は未実装で可）
 - [x] 既存の `promptPaletteStore` 利用箇所（`PromptPalette.tsx`, `usePathInsertion.ts`）に API 互換性の崩れがないことを確認
 

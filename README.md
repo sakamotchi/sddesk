@@ -1,4 +1,4 @@
-# SpecPrompt
+# SDDesk
 
 **A lightweight desktop app for spec-driven development with AI.**
 
@@ -10,7 +10,7 @@ View your specs, run AI CLI tools, and browse files — all in one window, witho
 
 ## Overview
 
-SpecPrompt pairs a Markdown previewer with an integrated terminal so you can reference specs and issue AI CLI commands (e.g. Claude Code) side-by-side. It targets a memory footprint of **under 200 MB** — roughly one-fifth of VS Code.
+SDDesk pairs a Markdown previewer with an integrated terminal so you can reference specs and issue AI CLI commands (e.g. Claude Code) side-by-side. It targets a memory footprint of **under 200 MB** — roughly one-fifth of VS Code.
 
 ## Screenshots
 
@@ -56,8 +56,8 @@ SpecPrompt pairs a Markdown previewer with an integrated terminal so you can ref
 
 ```bash
 # Clone the repository
-git clone https://github.com/sakamotchi/spec-prompt.git
-cd spec-prompt
+git clone https://github.com/sakamotchi/sddesk.git
+cd sddesk
 
 # Install dependencies
 npm install
@@ -84,7 +84,7 @@ npx tauri build
 
 ## Multiple Windows and Tab Merging (macOS)
 
-SpecPrompt supports macOS native window tabs, so you can group multiple projects into one tabbed window instead of scattering them across your desktop.
+SDDesk supports macOS native window tabs, so you can group multiple projects into one tabbed window instead of scattering them across your desktop.
 
 ### Open a new window
 
@@ -95,13 +95,13 @@ SpecPrompt supports macOS native window tabs, so you can group multiple projects
 ### Merge windows manually into tabs
 
 - Activate any window and choose **View > Show Tab Bar**. Drag another window's title bar onto the tab bar to merge it.
-- Alternatively, **Window > Merge All Windows** merges every SpecPrompt window at once.
+- Alternatively, **Window > Merge All Windows** merges every SDDesk window at once.
 
 ### Enable automatic tabbing
 
 Set **System Settings > Desktop & Dock > Windows > Prefer tabs when opening documents** to **"Always"**. New windows will automatically open as tabs of the existing window.
 
-> **Note**: Because Tauri v2 does not yet expose `NSWindow.tabbingMode = .preferred`, SpecPrompt cannot force automatic tabbing like VS Code does. If your system setting is not "Always", use the manual merge steps above.
+> **Note**: Because Tauri v2 does not yet expose `NSWindow.tabbingMode = .preferred`, SDDesk cannot force automatic tabbing like VS Code does. If your system setting is not "Always", use the manual merge steps above.
 
 ## License
 

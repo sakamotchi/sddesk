@@ -92,7 +92,7 @@ async function openNewWindow(projectPath?: string): Promise<void> {
     : 'index.html'
   new WebviewWindow(label, {
     url,
-    title: 'SpecPrompt',
+    title: 'SDDesk',
     width: 1200,
     height: 800,
     resizable: true,
@@ -172,7 +172,7 @@ if (initialProject) {
 ```typescript
 useEffect(() => {
   const name = projectRoot?.split('/').pop() ?? null
-  document.title = name ? `SpecPrompt — ${name}` : 'SpecPrompt'
+  document.title = name ? `SDDesk — ${name}` : 'SDDesk'
 }, [projectRoot])
 ```
 

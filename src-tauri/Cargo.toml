@@ -1,12 +1,12 @@
 [package]
-name = "spec-prompt"
+name = "sddesk"
 version = "0.2.9"
-description = "SpecPrompt - 仕様駆動開発ツール"
+description = "SDDesk - 仕様駆動開発のための軽量デスクトップアプリ"
 authors = []
 edition = "2021"
 
 [lib]
-name = "spec_prompt_lib"
+name = "sddesk_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
