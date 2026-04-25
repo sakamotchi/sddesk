@@ -54,7 +54,7 @@ macOS デスクトップ通知 (タイトル: "Claude Code — Terminal 1")
    `set_pty_display_title(pty_id: String, title: String, cache: State<DisplayTitleCache>)` を追加し、`invoke_handler` に登録する。
 
 3. **通知発火時にタイトル合成**
-   `pty.rs` の OSC 9 検出ブロック（現 144-152 行）でキャッシュを参照し、値があれば `format!("Claude Code — {}", t)`、なければフォールバック `"SpecPrompt / Claude Code"` を使う。既存のフォーカス判定（`is_app_focused`）ロジックは変更しない。
+   `pty.rs` の OSC 9 検出ブロック（現 144-152 行）でキャッシュを参照し、値があれば `format!("Claude Code — {}", t)`、なければフォールバック `"SDDesk / Claude Code"` を使う。既存のフォーカス判定（`is_app_focused`）ロジックは変更しない。
 
 4. **PTY クローズ時の掃除**
    `close_pty` で `cache.remove(&id)` を呼ぶ（`PtyManager::instances` / `TerminalManager` の removal と並ぶ 1 行追加）。
@@ -150,7 +150,7 @@ for msg in osc9.feed(&buf[..n]) {
         let title = cache
             .get(&pty_id)
             .map(|t| format!("Claude Code — {}", t))
-            .unwrap_or_else(|| "SpecPrompt / Claude Code".to_string());
+            .unwrap_or_else(|| "SDDesk / Claude Code".to_string());
 
         crate::commands::notification::send_native_notification(
             &app,
@@ -261,7 +261,7 @@ fn display_title_cache_unknown_key_returns_none() {
 | キャッシュを Rust に持つ（フロントに持たない） | 通知発火は Rust 側で完結するため、IPC 往復を避ける。後続の Phase 4（未読マーク判定）でも Rust 側に最新タイトルがある方が判定が軽い | フロントに持ち、通知発火を毎回フロント経由にする案。IPC 回数が増えるため不採用 |
 | 同期は `Mutex<HashMap>` | タブ数が数個〜数十個のスケール。RwLock の最適化メリットなし | `RwLock` や `dashmap` は過剰 |
 | Front → Rust の同期を `setPtyId` 呼び出し側に置く | `terminalStore` のピュアさを保つ。非同期副作用をストアから排除 | ストア内ラッパーで同期。副作用とロジックが混ざる |
-| タイトル形式を `Claude Code — <name>` 固定 | 従来タイトル `SpecPrompt / Claude Code` から変更するが、UX として発火元が優先情報 | `SpecPrompt / Claude Code [<name>]` など。冗長のため不採用 |
+| タイトル形式を `Claude Code — <name>` 固定 | 従来タイトル `SDDesk / Claude Code` から変更するが、UX として発火元が優先情報 | `SDDesk / Claude Code [<name>]` など。冗長のため不採用 |
 | `set_pty_display_title` が未知の `ptyId` を受け入れる | PTY 登録より先にフロントが呼んでも問題が起きない順序非依存性を確保 | 未登録 ID を拒否する。順序競合のリスクが上がるため不採用 |
 
 ## 未解決事項

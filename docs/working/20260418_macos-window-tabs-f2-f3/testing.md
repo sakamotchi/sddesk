@@ -24,7 +24,7 @@ F2+F3 で担保する **受け入れ基準 1, 6, 7**（元要件 `docs/local/202
 
 **手順:**
 
-1. SpecPrompt を起動し、プロジェクト A を開く。
+1. SDDesk を起動し、プロジェクト A を開く。
 2. `⌘N`（macOS）または `Ctrl+N`（Win/Linux）を押す。
 
 **期待結果:**
@@ -44,7 +44,7 @@ F2+F3 で担保する **受け入れ基準 1, 6, 7**（元要件 `docs/local/202
 
 **手順:**
 
-1. SpecPrompt を起動。
+1. SDDesk を起動。
 2. メニューバーから **File > New Window** を選択する。
 
 **期待結果:**
@@ -90,7 +90,7 @@ F2+F3 で担保する **受け入れ基準 1, 6, 7**（元要件 `docs/local/202
 
 **手順:**
 
-1. SpecPrompt でプロジェクト A を開く（ウィンドウ A）。
+1. SDDesk でプロジェクト A を開く（ウィンドウ A）。
 2. `⌘N` で新規ウィンドウ（ウィンドウ B）を開き、プロジェクト B を開く。
 3. ウィンドウ A で以下を操作：
    - メインタブを「ターミナル」に切替
@@ -140,14 +140,14 @@ F2+F3 で担保する **受け入れ基準 1, 6, 7**（元要件 `docs/local/202
 **手順（F3 リリース前の既存ユーザー想定）:**
 
 1. 実装前の状態で任意の設定（`activeMainTab` や `expandedDirs`）を作る。
-2. localStorage に `spec-prompt-app-store` キーが存在することを確認（DevTools）。
+2. localStorage に `sddesk-app-store` キーが存在することを確認（DevTools）。
 3. F3 実装版にアップデート（`npm run dev` or `tauri dev`）。
 4. アプリ再起動。
 
 **期待結果:**
 
-- localStorage から旧キー `spec-prompt-app-store` が消える
-- 新キー `spec-prompt-app-store:main` が旧キーの内容でコピーされている
+- localStorage から旧キー `sddesk-app-store` が消える
+- 新キー `sddesk-app-store:main` が旧キーの内容でコピーされている
 - メインウィンドウで以前の設定（`activeMainTab` など）が復元されている
 
 **確認結果:**
@@ -227,8 +227,8 @@ npx vitest run
 | `⌘N` を連打（例: 5 連打） | 5 つのウィンドウが開く（競合なし） | [ ] OK / NG |
 | プロジェクト未選択のメインウィンドウで `⌘N` | 新規ウィンドウが `?new=1` 状態で開く | [ ] OK / NG |
 | 100 件以上のファイルツリー展開状態でウィンドウ複製 | ウィンドウ B には展開状態が漏れない（persist 分離が効く） | [ ] OK / NG |
-| 旧キー `spec-prompt-app-store` と新キー `spec-prompt-app-store:main` が両方存在 | 新キー優先、旧キーはそのまま残す（マイグレーションが no-op） | [ ] OK / NG |
-| `settingsStore` の言語設定を変更 | 全ウィンドウに即時反映される（`spec-prompt-language` は共有維持） | [ ] OK / NG |
+| 旧キー `sddesk-app-store` と新キー `sddesk-app-store:main` が両方存在 | 新キー優先、旧キーはそのまま残す（マイグレーションが no-op） | [ ] OK / NG |
+| `settingsStore` の言語設定を変更 | 全ウィンドウに即時反映される（`sddesk-language` は共有維持） | [ ] OK / NG |
 
 ## 回帰テスト
 

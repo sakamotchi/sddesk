@@ -28,7 +28,7 @@
 - [x] `create<AppState>()(persist(...))` の形に変更
 - [x] `partialize` で `fileTree` を除外
 - [x] `replacer` / `reviver` で `Set<string>` のシリアライズ対応
-- [x] ストレージキーを `'spec-prompt-app-store'` に設定
+- [x] ストレージキーを `'sddesk-app-store'` に設定
 - [x] `appStore.test.ts` に persist のテストを追加
   - [x] `projectRoot` が localStorage に保存される
   - [x] `expandedDirs` の Set が正しく変換される

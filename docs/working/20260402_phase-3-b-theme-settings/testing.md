@@ -7,7 +7,7 @@
 ## 前提条件
 
 - `npx tauri dev` でアプリが起動していること
-- `spec-prompt` リポジトリを開いた状態
+- `sddesk` リポジトリを開いた状態
 
 ---
 
@@ -230,7 +230,7 @@
 
 1. 設定を変更した後、ターミナルで以下を実行する：
    ```bash
-   cat ~/Library/Application\ Support/spec-prompt/config.json
+   cat ~/Library/Application\ Support/sddesk/config.json
    ```
 
 **期待結果:**

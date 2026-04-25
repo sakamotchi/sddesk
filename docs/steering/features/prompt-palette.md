@@ -86,7 +86,7 @@ v1.3 で **Phase B** を実装し、ユーザー Skill（`~/.claude/skills/<name
 |--------|------|------|
 | PE-29 | 送信成功で自動蓄積 | `handleSubmit` 成功時に trim 済み本文を `pushHistory` で履歴に追加。送信失敗時は追加しない |
 | PE-30 | 100 件上限・重複排除 | 新しい順に最大 100 件保持。101 件目以降は最古から破棄。直前と完全一致の連続 push は無視 |
-| PE-31 | localStorage 永続化 | Zustand `persist` middleware で `spec-prompt:prompt-palette`（`version: 1`）に永続化。端末ローカルのみ、平文保存 |
+| PE-31 | localStorage 永続化 | Zustand `persist` middleware で `sddesk:prompt-palette`（`version: 1`）に永続化。端末ローカルのみ、平文保存 |
 | PE-32 | `↑`/`↓` 直近巡回 | textarea が空のとき `↑` で直近履歴を流し込み、連続 `↑`/`↓` で過去・新しい側へ巡回。最新より新しい側で `↓` で空に戻る。IME・修飾キー付きは抑止 |
 | PE-33 | `⌘H` / `Ctrl+H` ドロップダウン | パレット内スコープで履歴一覧を開閉。検索 input + fuzzy + `↑`/`↓`/`Enter` 操作・`Esc` で段階剥離 |
 | PE-34 | 行表示 | 1 行プレビュー（80 字トリム、改行は `↵` に変換）＋相対日時（秒/分/時間/日/月日） |
@@ -103,7 +103,7 @@ v1.3 で **Phase B** を実装し、ユーザー Skill（`~/.claude/skills/<name
 | PE-40 | ツリー連携 | プレースホルダ選択状態でツリー `⌘+Click`・右クリック・`⌘P` パスパレットで該当パスに置換される（既存 `insertAtCaret` の選択範囲置換挙動を流用） |
 | PE-41 | `/` インラインサジェスト | textarea 先頭の `/` + 改行・空白なしトークンで `SlashSuggest` を表示。候補は name fuzzy で最大 10 件。`Enter` で全置換 → プレースホルダ選択状態化 |
 | PE-42 | 削除確認 | 行アイコン / エディタの削除は Radix `AlertDialog` で確認 |
-| PE-43 | localStorage 永続化 | 履歴と同じ `spec-prompt:prompt-palette` キーに `templates: PromptTemplate[]` を保存 |
+| PE-43 | localStorage 永続化 | 履歴と同じ `sddesk:prompt-palette` キーに `templates: PromptTemplate[]` を保存 |
 | PE-44 | エディタの段階剥離 | エディタ表示中の Esc はエディタのみ閉じる（親パレットは残る）。`Dialog.Content.onEscapeKeyDown` で `editorState !== null` のとき preventDefault |
 
 ### 2.9 ショートカット衝突回避
@@ -182,7 +182,7 @@ interface PromptPaletteState {
 }
 ```
 
-**永続化**: Zustand `persist` middleware で `spec-prompt:prompt-palette`（`version: 1`）に `history` / `templates` のみ書き出す（`partialize`）。`drafts` / `isOpen` / `dropdown` / `editorState` はランタイム状態として永続化対象外。
+**永続化**: Zustand `persist` middleware で `sddesk:prompt-palette`（`version: 1`）に `history` / `templates` のみ書き出す（`partialize`）。`drafts` / `isOpen` / `dropdown` / `editorState` はランタイム状態として永続化対象外。
 
 **ディスパッチ**: `src/hooks/usePathInsertion.ts`
 

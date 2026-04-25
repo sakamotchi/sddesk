@@ -1,4 +1,4 @@
-# SpecPrompt
+# SDDesk
 
 **生成AIを用いた仕様駆動開発のための軽量デスクトップアプリ。**
 
@@ -10,7 +10,7 @@
 
 ## 概要
 
-SpecPrompt はマークダウンプレビューと統合ターミナルを一体化したデスクトップアプリです。仕様書を参照しながら Claude Code などのAI CLIツールを横並びで操作できます。メモリ使用量の目標は **200MB 以下**（VS Codeの約1/5）。
+SDDesk はマークダウンプレビューと統合ターミナルを一体化したデスクトップアプリです。仕様書を参照しながら Claude Code などのAI CLIツールを横並びで操作できます。メモリ使用量の目標は **200MB 以下**（VS Codeの約1/5）。
 
 ## スクリーンショット
 
@@ -56,8 +56,8 @@ SpecPrompt はマークダウンプレビューと統合ターミナルを一体
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/sakamotchi/spec-prompt.git
-cd spec-prompt
+git clone https://github.com/sakamotchi/sddesk.git
+cd sddesk
 
 # 依存パッケージをインストール
 npm install
@@ -84,7 +84,7 @@ npx tauri build
 
 ## 複数ウィンドウとタブ統合（macOS）
 
-SpecPrompt は macOS のネイティブウィンドウタブに対応しています。複数プロジェクトを並行して扱う際に、ウィンドウを 1 つにまとめて切り替えられます。
+SDDesk は macOS のネイティブウィンドウタブに対応しています。複数プロジェクトを並行して扱う際に、ウィンドウを 1 つにまとめて切り替えられます。
 
 ### 新規ウィンドウを開く
 

@@ -2,7 +2,7 @@
 
 ## 概要
 
-SpecPrompt の統合ターミナルで、ユーザーが任意のタブに好きなラベルを付けられるようにする。ユーザーが手動で名前を付けたタブ（"pinned"）は、それ以降 OSC 0/1/2 由来の自動タイトル更新（Phase 2）を**無視する**。macOS 標準ターミナル（Terminal.app）の "Permanent Title" 相当の挙動を提供する。
+SDDesk の統合ターミナルで、ユーザーが任意のタブに好きなラベルを付けられるようにする。ユーザーが手動で名前を付けたタブ（"pinned"）は、それ以降 OSC 0/1/2 由来の自動タイトル更新（Phase 2）を**無視する**。macOS 標準ターミナル（Terminal.app）の "Permanent Title" 相当の挙動を提供する。
 
 リネームの UI は:
 - **ダブルクリック** でタブラベルを編集モードにし、Enter / blur で確定、Esc でキャンセル
@@ -14,7 +14,7 @@ SpecPrompt の統合ターミナルで、ユーザーが任意のタブに好き
 
 - Phase 1・2 で通知タイトルとタブラベルを動的に連動させる基盤が整った（OSC 0/1/2 → `oscTitle` → `computeDisplayTitle` → UI / 通知タイトル）。
 - しかし、OSC を出さないコマンド（例: `python`, `make`, 一部のビルドツール）ではタブ名が `Terminal N` のまま。ユーザーは「このタブはビルド監視」「このタブは API 動作確認」など**意味のある名前**を付けたいユースケースがある。
-- macOS Terminal.app はユーザーが手動で名前を付けるとそれを固定（permanent title）し、以降のシェル側タイトル出力を無視する。SpecPrompt でも同等の挙動を提供したい。
+- macOS Terminal.app はユーザーが手動で名前を付けるとそれを固定（permanent title）し、以降のシェル側タイトル出力を無視する。SDDesk でも同等の挙動を提供したい。
 - Phase 2 で `TerminalTab.oscTitle` とフォールバック名は分離済み。P3 では `manualTitle` / `pinned` フラグを追加して `computeDisplayTitle` の優先順位を 3 段に拡張する。
 
 ## 要件一覧

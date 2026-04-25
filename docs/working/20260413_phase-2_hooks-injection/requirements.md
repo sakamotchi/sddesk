@@ -21,7 +21,7 @@ Phase 1 で構築した通知基盤に対して、Claude Code が出力する OS
 
 - **説明**: `spawn_pty` で PTY を起動する際に `TERM_PROGRAM=iTerm.app` を設定し、Claude Code の Auto モードで OSC 9 を出力させる
 - **受け入れ条件**:
-  - [ ] SpecPrompt のターミナルで `echo $TERM_PROGRAM` → `iTerm.app` が返る
+  - [ ] SDDesk のターミナルで `echo $TERM_PROGRAM` → `iTerm.app` が返る
   - [ ] Claude Code の `/config` → Notifications が Auto のまま OSC 9 が出力される
 
 #### F-2: PTY 出力から OSC 9 シーケンスを検出
@@ -38,7 +38,7 @@ Phase 1 で構築した通知基盤に対して、Claude Code が出力する OS
 
 - **説明**: 検出したメッセージを Phase 1 の通知分類・送信ロジックに渡して macOS 通知を発火する
 - **受け入れ条件**:
-  - [ ] フォーカス判定が動作する（SpecPrompt フォーカス中は抑制）
+  - [ ] フォーカス判定が動作する（SDDesk フォーカス中は抑制）
   - [ ] Phase 1 の `send_native_notification` で通知が表示される
 
 ### 非機能要件

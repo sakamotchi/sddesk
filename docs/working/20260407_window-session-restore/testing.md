@@ -101,7 +101,7 @@
 
 1. アプリを起動する
 2. 別ウィンドウを2つ開く
-3. ブラウザデベロッパーツール相当（Tauri DevTools）で localStorage の `specprompt-window-sessions` キーの値を確認する
+3. ブラウザデベロッパーツール相当（Tauri DevTools）で localStorage の `sddesk-window-sessions` キーの値を確認する
 4. ウィンドウを1つ閉じる
 5. 再度 localStorage の値を確認する
 
@@ -137,7 +137,7 @@
 
 | ケース | 期待動作 | 確認結果 |
 |--------|---------|---------|
-| localStorage の `specprompt-window-sessions` を手動で壊した JSON に書き換えた場合 | アプリがクラッシュせず、セッション復元をスキップして通常起動する | OK |
+| localStorage の `sddesk-window-sessions` を手動で壊した JSON に書き換えた場合 | アプリがクラッシュせず、セッション復元をスキップして通常起動する | OK |
 | 多数のウィンドウ（5つ以上）を保存して復元した場合 | 全ウィンドウが正常に復元される | OK |
 | メインウィンドウだけを閉じ（他のウィンドウが残っている状態）で再起動した場合 | セッションが保存されており、再起動時に復元される | OK |
 

@@ -52,7 +52,7 @@ export function TreePanel() {
   // プロジェクトが変わったらウィンドウタイトルを更新
   useEffect(() => {
     const name = projectRoot?.split('/').pop() ?? null
-    getCurrentWindow().setTitle(name ? `SpecPrompt — ${name}` : 'SpecPrompt').catch(console.error)
+    getCurrentWindow().setTitle(name ? `SDDesk — ${name}` : 'SDDesk').catch(console.error)
   }, [projectRoot])
 
   // 追加ウィンドウ・メインウィンドウ共通: projectRoot が変わったら自身のセッションを更新

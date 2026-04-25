@@ -25,7 +25,7 @@
 
 ### パスフィルタ設計（ci.yml）
 
-`sql-query-build` の構成をベースに、spec-prompt のディレクトリ構造に合わせてフィルタを調整する。
+`sql-query-build` の構成をベースに、sddesk のディレクトリ構造に合わせてフィルタを調整する。
 
 ```yaml
 filters: |
@@ -40,7 +40,7 @@ filters: |
     - 'src-tauri/**'
 ```
 
-`sql-query-build` は `app/**` と `nuxt.config.ts` を対象にしているが、spec-prompt は `src/**` と `vite.config.ts` を使用する。
+`sql-query-build` は `app/**` と `nuxt.config.ts` を対象にしているが、sddesk は `src/**` と `vite.config.ts` を使用する。
 
 ### ジョブ依存関係（ci.yml）
 
@@ -52,9 +52,9 @@ changes ──┬──► test-frontend  (frontend == true の場合)
 
 ### コマンドマッピング
 
-| spec-prompt コマンド | sql-query-build との差分 |
+| sddesk コマンド | sql-query-build との差分 |
 |--------------------|------------------------|
-| `npm test` | sql-query-build は `npm run test:run`。spec-prompt の scripts には `test` が定義済み |
+| `npm test` | sql-query-build は `npm run test:run`。sddesk の scripts には `test` が定義済み |
 | `npm run lint` | 同一 |
 | `npm run build` | `tsc && vite build`（scripts の `build` で実行） |
 | `cargo test --manifest-path=src-tauri/Cargo.toml` | 同一 |

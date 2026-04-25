@@ -74,7 +74,7 @@ describe('windowSession', () => {
 
   it('saveMySession でキーが書き込まれる', () => {
     saveMySession('window-abc', '/path/to/project')
-    expect(localStorage.getItem('specprompt-win-window-abc')).not.toBeNull()
+    expect(localStorage.getItem('sddesk-win-window-abc')).not.toBeNull()
   })
 })
 ```

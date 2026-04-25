@@ -162,11 +162,11 @@ export const tauriApi = {
       : 'index.html?new=1'
     const win = new WebviewWindow(label, {
       url,
-      title: 'SpecPrompt',
+      title: 'SDDesk',
       width: 1200,
       height: 800,
       resizable: true,
-      tabbingIdentifier: 'SpecPrompt',
+      tabbingIdentifier: 'SDDesk',
     })
     win.once('tauri://error', (e) => console.error('Failed to create window:', e))
   },

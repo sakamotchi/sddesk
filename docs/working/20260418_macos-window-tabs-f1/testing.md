@@ -76,9 +76,9 @@ Tauri v2 は `NSWindow.tabbingMode` を露出しないため、VS Code のよう
 
 **現行タイトル書式の仕様確認:**
 
-現行の `TreePanel.tsx:54` は `setTitle(`SpecPrompt — ${name}`)` の書式。macOS NSWindow は `—` 前方をタブ名に使うため、タブ名が `SpecPrompt`（全タブ同名）になる可能性がある。
+現行の `TreePanel.tsx:54` は `setTitle(`SDDesk — ${name}`)` の書式。macOS NSWindow は `—` 前方をタブ名に使うため、タブ名が `SDDesk`（全タブ同名）になる可能性がある。
 
-- **もしタブ名が `SpecPrompt` 固定になった場合**: `TreePanel.tsx:54` を `setTitle(`${name} — SpecPrompt`)` に反転し、再度確認する（tasklist T-4b）。
+- **もしタブ名が `SDDesk` 固定になった場合**: `TreePanel.tsx:54` を `setTitle(`${name} — SDDesk`)` に反転し、再度確認する（tasklist T-4b）。
 - **タブ名にプロジェクト名が出ていれば**: 書式変更は不要（tasklist T-4a）。
 
 **確認結果:**
@@ -130,7 +130,7 @@ Tauri v2 は `NSWindow.tabbingMode` を露出しないため、VS Code のよう
 
 ### フロントエンドテスト（Vitest）
 
-既存 `tauriApi` のテストがあれば、`openNewWindow` が `tabbingIdentifier: 'SpecPrompt'` 付きで呼ばれることを追加検証：
+既存 `tauriApi` のテストがあれば、`openNewWindow` が `tabbingIdentifier: 'SDDesk'` 付きで呼ばれることを追加検証：
 
 ```bash
 npx vitest run src/lib/tauriApi.test.ts
@@ -176,7 +176,7 @@ npx vitest run
 |--------|---------|---------|
 | macOS システム設定「タブで開く」が "なし" | 新規ウィンドウは独立で開く。Window > Merge All Windows で手動統合可能 | [ ] OK / NG |
 | macOS システム設定「タブで開く」が "フルスクリーン時のみ" | Tauri Issue #6548 によりフルスクリーン時以外は統合しない（既知バグ、ドキュメントで案内） | [ ] 既知バグ確認 |
-| プロジェクト未選択状態 | ウィンドウタイトルが `SpecPrompt` のみ。タブバーがあれば `SpecPrompt` がタブ名 | [ ] OK / NG |
+| プロジェクト未選択状態 | ウィンドウタイトルが `SDDesk` のみ。タブバーがあれば `SDDesk` がタブ名 | [ ] OK / NG |
 | プロジェクト名が極端に長い（100 文字以上） | タブ名は macOS が自動で省略表示（`…`）。ウィンドウタイトルは完全表示 | [ ] OK / NG |
 | セッション復元で複数ウィンドウが開くとき | 復元された各ウィンドウも `tabbingIdentifier` 経由でタブ統合される（`main.tsx:79` が `openNewWindow` を呼ぶため、F1 の修正が反映される） | [ ] OK / NG |
 
@@ -198,4 +198,4 @@ npx vitest run
 
 - **Windows / Linux 確認は F4 に先送り**。F1 の受け入れ基準は macOS 限定。
 - `tabbingIdentifier` は macOS 以外では無視されるため、Windows / Linux での回帰は「既存の新規ウィンドウ機能が従前通り動く」ことの確認で足りる。
-- 現行タイトル書式が `SpecPrompt — ${name}`（SpecPrompt 先頭）のため、macOS の NSWindow タブ名切り詰めルール（`—` 後方を切る）と合わない可能性がある。ケース 2 で判定し、必要なら書式反転（T-4b）を別コミットで入れる。
+- 現行タイトル書式が `SDDesk — ${name}`（SDDesk 先頭）のため、macOS の NSWindow タブ名切り詰めルール（`—` 後方を切る）と合わない可能性がある。ケース 2 で判定し、必要なら書式反転（T-4b）を別コミットで入れる。

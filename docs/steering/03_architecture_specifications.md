@@ -302,7 +302,7 @@ src-tauri/src/
 
 ### 5.1 設定ファイルの保存先
 
-`~/.config/spec-prompt/config.json`
+`~/.config/sddesk/config.json`
 
 ### 5.2 設定ファイル構造
 

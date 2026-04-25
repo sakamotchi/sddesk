@@ -71,7 +71,7 @@ pub fn run() {
 
             #[cfg(target_os = "macos")]
             {
-                let app_submenu = SubmenuBuilder::new(app, "SpecPrompt")
+                let app_submenu = SubmenuBuilder::new(app, "SDDesk")
                     .about(None)
                     .separator()
                     .services()

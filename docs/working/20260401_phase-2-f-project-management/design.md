@@ -16,7 +16,7 @@ Tauri IPC
 Rust Backend
     src-tauri/src/commands/config.rs
          ↓
-~/.config/spec-prompt/config.json
+~/.config/sddesk/config.json
 ```
 
 ### 影響範囲
@@ -30,7 +30,7 @@ Rust Backend
 
 ### 概要
 
-Rust 側に Config Manager を実装し、設定ファイル (`~/.config/spec-prompt/config.json`) の永続化を担う。フロントエンドは起動時に `get_recent_projects` でリストを取得し、プロジェクトを開くたびに `add_recent_project` を呼んで履歴を更新する。
+Rust 側に Config Manager を実装し、設定ファイル (`~/.config/sddesk/config.json`) の永続化を担う。フロントエンドは起動時に `get_recent_projects` でリストを取得し、プロジェクトを開くたびに `add_recent_project` を呼んで履歴を更新する。
 
 プロジェクト切り替えは `appStore.switchProject(path)` という単一のアクションに集約し、リセット処理を一元管理する。
 
@@ -126,13 +126,13 @@ TreePanel ヘッダー（変更後）:
 
 ```
 ┌─────────────────────────────────┐
-│ [▼ spec-prompt]    [📂]         │  ← プロジェクト名をクリックでドロップダウン
+│ [▼ sddesk]    [📂]         │  ← プロジェクト名をクリックでドロップダウン
 └─────────────────────────────────┘
          ↓ クリック
 ┌────────────────────────┐
 │ 最近開いたプロジェクト  │
 │ ──────────────────── │
-│ 📁 spec-prompt ✓      │  ← 現在のプロジェクト（チェックマーク付き）
+│ 📁 sddesk ✓      │  ← 現在のプロジェクト（チェックマーク付き）
 │ 📁 my-api-project     │
 │ 📁 design-docs        │
 └────────────────────────┘

@@ -2,7 +2,7 @@
 
 ## 概要
 
-SpecPrompt の統合ターミナルで、シェル／コマンドが出力する **OSC 0 / OSC 1 / OSC 2** エスケープシーケンス（ウィンドウタイトル・アイコンタイトル・タブタイトルの設定）を検出し、タブのラベルを自動的にそのタイトル文字列に更新する。macOS 標準ターミナル（Terminal.app）相当の挙動を実現する。
+SDDesk の統合ターミナルで、シェル／コマンドが出力する **OSC 0 / OSC 1 / OSC 2** エスケープシーケンス（ウィンドウタイトル・アイコンタイトル・タブタイトルの設定）を検出し、タブのラベルを自動的にそのタイトル文字列に更新する。macOS 標準ターミナル（Terminal.app）相当の挙動を実現する。
 
 更新されたタブタイトルは、Phase 1 で追加した `DisplayTitleCache` を経由して **OS 通知のタイトルにも自動的に反映** される（例: `Claude Code — vim foo.ts`）。
 
@@ -12,7 +12,7 @@ SpecPrompt の統合ターミナルで、シェル／コマンドが出力する
 
 - Phase 1 で通知タイトルにタブ名（`Terminal N`）を差し込む基盤が整った。
 - 現状タブ名は作成時の連番（`Terminal 1`, `Terminal 2`）に固定されており、タブを見ても何が動いているか分からない。
-- macOS Terminal.app は shell の OSC 0/1/2 出力を解釈してタブラベルを自動更新する標準機能を備えている。SpecPrompt の `alacritty-terminal` は OSC 0/1/2 を内部で `Event::Title(String)` / `Event::ResetTitle` として発火しうるが、現状 `TermEventHandler::send_event` が全イベントを破棄している（`src-tauri/src/terminal/event.rs:8`）。
+- macOS Terminal.app は shell の OSC 0/1/2 出力を解釈してタブラベルを自動更新する標準機能を備えている。SDDesk の `alacritty-terminal` は OSC 0/1/2 を内部で `Event::Title(String)` / `Event::ResetTitle` として発火しうるが、現状 `TermEventHandler::send_event` が全イベントを破棄している（`src-tauri/src/terminal/event.rs:8`）。
 - Phase 2 で `TermEventHandler` の no-op を脱却し、OSC タイトル更新を UI と通知タイトル両方に反映させる。
 
 ## 要件一覧

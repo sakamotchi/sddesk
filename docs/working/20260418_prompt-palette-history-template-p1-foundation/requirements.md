@@ -32,7 +32,7 @@
 
 #### F1-2: persist middleware の適用（WBS T1-2）
 
-- **説明**: `promptPaletteStore` を `persist(..., { name: 'spec-prompt:prompt-palette', version: 1, partialize: ... })` でラップし、`history` と `templates` のみ localStorage に永続化する。ランタイム状態（`isOpen`, `targetPtyId`, `drafts`, `dropdown`, `editorState` 等）は永続化対象から除外する
+- **説明**: `promptPaletteStore` を `persist(..., { name: 'sddesk:prompt-palette', version: 1, partialize: ... })` でラップし、`history` と `templates` のみ localStorage に永続化する。ランタイム状態（`isOpen`, `targetPtyId`, `drafts`, `dropdown`, `editorState` 等）は永続化対象から除外する
 - **受け入れ条件**:
   - [ ] `createJSONStorage(() => localStorage)` を明示的に指定（`appStore` と同じパターン）
   - [ ] `partialize` が `history` と `templates` のみ返す

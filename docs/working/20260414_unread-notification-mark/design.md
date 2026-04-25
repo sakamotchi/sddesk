@@ -160,7 +160,7 @@ for msg in osc9.feed(&buf[..n]) {
         let title = cache
             .get(&pty_id)
             .map(|t| format!("Claude Code — {}", t))
-            .unwrap_or_else(|| "SpecPrompt / Claude Code".to_string());
+            .unwrap_or_else(|| "SDDesk / Claude Code".to_string());
         notification::send_native_notification(&app, &title, &msg);
 
         // 追加: フロントに未読マーク指示

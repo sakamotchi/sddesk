@@ -98,7 +98,7 @@ loop {
             // OSC 9 検出
             for msg in osc9.feed(&buf[..n]) {
                 if !is_app_focused(&app) {
-                    send_native_notification(&app, "SpecPrompt / Claude Code", &msg);
+                    send_native_notification(&app, "SDDesk / Claude Code", &msg);
                 }
             }
 

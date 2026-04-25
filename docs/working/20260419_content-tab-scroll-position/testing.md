@@ -1,6 +1,6 @@
 # テスト手順書 - content-tab-scroll-position
 
-関連 Issue: [#9](https://github.com/sakamotchi/spec-prompt/issues/9)
+関連 Issue: [#9](https://github.com/sakamotchi/sddesk/issues/9)
 
 ## 概要
 

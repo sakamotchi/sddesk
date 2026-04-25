@@ -20,8 +20,8 @@
 ### 1.2 初期セットアップ
 
 ```bash
-git clone https://github.com/your-repo/spec-prompt.git
-cd spec-prompt
+git clone https://github.com/your-repo/sddesk.git
+cd sddesk
 npm install
 # Rust依存関係は初回ビルド時に自動インストール
 ```

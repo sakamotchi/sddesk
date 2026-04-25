@@ -18,7 +18,7 @@ Tauri IPC
 Rust Backend
     config.rs（AppearanceSettings 追加）
          ↓
-~/.../spec-prompt/config.json
+~/.../sddesk/config.json
 ```
 
 ### 影響範囲
@@ -161,7 +161,7 @@ pub struct Config {
 
 ```
 ┌─────────────────────────────────────┐
-│ [▼ spec-prompt]    [📂] [⚙]         │  ← ギアアイコンを追加
+│ [▼ sddesk]    [📂] [⚙]         │  ← ギアアイコンを追加
 └─────────────────────────────────────┘
 ```
 

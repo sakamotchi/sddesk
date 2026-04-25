@@ -47,7 +47,7 @@
 ### T-5: 動作確認・テスト
 
 - [x] `npx tauri dev` で起動し、curl で通知が出ることを確認
-- [x] SpecPrompt フォーカス中に通知が抑制されることを確認（ログで focused=true 確認）
+- [x] SDDesk フォーカス中に通知が抑制されることを確認（ログで focused=true 確認）
 - [x] 不正 JSON を送ってもサーバーがクラッシュしないことを確認
 - [x] `cargo test` で全テストパス
 - [x] `npm run build` でフロントエンドビルドエラーなし
@@ -64,5 +64,5 @@
 
 - `tauri-plugin-notification` は dev ビルド（`npx tauri dev`）では通知が配信されない問題がある
 - dev ビルドでは `osascript`（macOS AppleScript）にフォールバックして通知を送信
-- プロダクションビルド（`.app`）では `tauri-plugin-notification` が SpecPrompt アイコンで正常動作する見込み
+- プロダクションビルド（`.app`）では `tauri-plugin-notification` が SDDesk アイコンで正常動作する見込み
 - フロントエンドに `@tauri-apps/plugin-notification` を追加し、起動時に通知権限をリクエスト
