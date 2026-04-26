@@ -60,3 +60,25 @@ npm run version:sync
 ### 備考
 
 このスクリプトは `npm version` のライフサイクルフックで自動実行されるため、通常は直接実行する必要はありません。`release.js` を使用してください。
+
+---
+
+## extract-changelog.js
+
+`CHANGELOG.md` から指定バージョンのセクション本文を抽出して標準出力に書き出します。
+GitHub Actions の `release.yml` から呼ばれ、tauri-action の `releaseBody` として
+GitHub Release ページの説明文に流し込まれます。
+
+### 使い方
+
+```bash
+node scripts/extract-changelog.js 0.3.4
+node scripts/extract-changelog.js v0.3.4   # 先頭 'v' は許容
+```
+
+### 動作
+
+- `## [x.y.z]` 行から次の `## [` 行の手前までを切り出す
+- 該当セクションが存在しない / 空 / CHANGELOG.md が読めないなどの異常系では、
+  フォールバック文言（commit history へのリンク）を出力して exit 0 する
+  - 抽出失敗で workflow を落とさないため
