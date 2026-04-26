@@ -164,9 +164,15 @@ GitHub Actions の進捗 URL を表示します:
 ✅ リリース完了!
   バージョン: v{new_version}
   Actions: https://github.com/sakamotchi/sddesk/actions
+  Release: https://github.com/sakamotchi/sddesk/releases/tag/v{new_version}
+          （workflow 完了後に閲覧可能）
 ```
 
 必要に応じて `gh run list --limit 1` で起動した workflow の run id も表示します。
+
+GitHub Release ページの本文は `release.yml` workflow が `scripts/extract-changelog.js` を
+呼び出して CHANGELOG.md の該当バージョンセクションから自動生成します。
+スキル側で `gh release edit` を呼ぶ必要はありません。
 
 ## エラーハンドリング指針
 

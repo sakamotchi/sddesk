@@ -50,6 +50,18 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      # CHANGELOG.md からタグに対応するセクションを抽出して releaseBody に渡す。
+      # 該当セクションが見つからない場合はスクリプト側でフォールバック文言を出力する。
+      - name: Extract release notes from CHANGELOG
+        id: release_notes
+        shell: bash
+        run: |
+          {
+            echo 'body<<RELEASE_NOTES_EOF'
+            node scripts/extract-changelog.js "${{ github.ref_name }}"
+            echo 'RELEASE_NOTES_EOF'
+          } >> "$GITHUB_OUTPUT"
+
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
@@ -65,9 +77,7 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: 'Release ${{ github.ref_name }}'
-          releaseBody: |
-            ## What's Changed
-            See the [commit history](https://github.com/${{ github.repository }}/commits/${{ github.ref_name }}) for details.
+          releaseBody: ${{ steps.release_notes.outputs.body }}
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
